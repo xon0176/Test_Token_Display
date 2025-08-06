@@ -5,82 +5,106 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>City Clinic Token Display</title>
   <style>
-    body {
+    html, body{
+      height: 100%;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(90deg, #53d0d2, #128f91);
-      color: white;
-      overflow: hidden;
     }
+
+    body {
+      margin: 0; /* Remove default margin */
+      font-family: 'Segoe UI', sans-serif; /* Set font style */
+      background: linear-gradient(90deg, #53d0d2, #128f91); /* Background gradient */
+      color: white; /* Default text color */
+      overflow: hidden; /* Hide scrollbars */
+    }
+
     .container {
-      display: flex;
-      height: calc(100vh - 100px);
-      width: 100vw;
+      display: flex; /* Flex layout for main container */
+      height: calc(100% - 50px); /* Full height */
+      width: 100vw; /* Full width */
     }
+
     .left {
       width: 70%;
-      position: relative;
-      border-bottom-right-radius: 50px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
+
     .left img {
-      position: absolute;
+      position: absolute; /* Position logo */
       top: 30px;
       left: 30px;
       width: 180px;
       height: auto;
+      z-index: 1;
     }
-    iframe#ytVideo {
-      width: 100%;
-      height: 100%;
-      border: none;
+
+    .left iframe {
+      flex: 1;
+      width: 100%; /* Full width video */
+      border: none; /* Remove borders */
+      border-bottom-right-radius: 50px;
     }
+
     .info-row {
-      display: flex;
+      display: flex; /* Row of info boxes */
       justify-content: center;
       align-items: center;
       font-size: 36px;
       gap: 180px;
       color: #fff;
       padding: 20px;
-      background: rgba(0, 0, 0, 0.2);
+      z-index: 2;
     }
+
     .info-box {
       width: 200px;
       text-align: center;
     }
+
     .right {
       width: 30%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-    }
+      padding: 40px 20px;
+}
+
     .token-label {
       font-size: 70px;
-      margin-bottom: 0.3em;
-      font-weight: 500;
-    }
-    .token-number {
-      font-size: 260px;
-      font-weight: bold;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
       color: #ffffff;
-      margin-bottom: 0.1em;
-    }
+}
+
+    .token-number {
+      font-size: 280px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 5px #00ffff;
+      margin-bottom: 20px;
+}
+
     .token-number.blink {
-      animation: blink 0.6s ease-in-out 3;
+      animation: blink 0.6s ease-in-out 3; /* Blinking animation */
     }
+
     .token-text {
-      font-size: 80px;
+      font-size: 70px;
+      color: #ffffff;
+      letter-spacing: 2px;
     }
+
     @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
     }
+
     .footer {
-      position: fixed;
+      position: fixed; /* Stick to bottom */
       bottom: 0;
       width: 100%;
       background: #128f91;
@@ -88,17 +112,20 @@
       font-size: 36px;
       overflow: hidden;
       white-space: nowrap;
-      border-top: 2px solid black;
+      border-top: 2px solid black; /* Black line on top */
     }
+
     .scroll-text {
       display: inline-block;
       padding-left: 100%;
-      animation: scroll-left 30s linear infinite;
+      animation: scroll-left 30s linear infinite; /* Scrolling text */
     }
+
     @keyframes scroll-left {
       0% { transform: translateX(0%); }
       100% { transform: translateX(-100%); }
     }
+
     #fullscreenBox {
       position: fixed;
       top: 50px;
@@ -114,6 +141,7 @@
       z-index: 9999;
       display: none;
     }
+
     #fullscreenBox button {
       padding: 10px 20px;
       font-size: 1.1em;
@@ -128,43 +156,48 @@
 <body>
   <div class="container">
     <div class="left">
-      <img src="logo.png" alt="City Clinic Logo">
-      <iframe id="ytVideo" allowfullscreen></iframe>
+      <img src="logo.png" alt="City Clinic Logo"> <!-- Clinic logo -->
+      <iframe id="ytVideo" allowfullscreen></iframe> <!-- YouTube video -->
       <div class="info-row">
         <div class="info-box">
           <div>🌡️</div>
-          <div id="temperature">--°C</div>
+          <div id="temperature">--°C</div> <!-- Temperature display -->
         </div>
         <div class="info-box">
           <div>💨</div>
-          <div id="wind">-- km/h</div>
+          <div id="wind">-- km/h</div> <!-- Wind speed display -->
         </div>
         <div class="info-box">
-          <div id="dateClock">--:--</div>
-          <div id="dateAlt">-- --, ----</div>
+          <div id="dateClock">--:--</div> <!-- Time display -->
+          <div id="dateAlt">-- --, ----</div> <!-- Date display -->
         </div>
       </div>
     </div>
+
     <div class="right">
       <div class="token-label">Now serving</div>
-      <div class="token-number" id="tokenNumber">--</div>
+      <div class="token-number" id="tokenNumber">--</div> <!-- Token number -->
       <div class="token-text">Number</div>
     </div>
   </div>
+
   <div class="footer">
     <div class="scroll-text">
       😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
     </div>
   </div>
-  <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
+
+  <audio id="bellSound" src="bell.mp3" preload="auto"></audio> <!-- Bell sound -->
+
   <div id="fullscreenBox">
-    <button onclick="openFullscreen()">🔲 Go Full Screen</button>
+    <button onclick="openFullscreen()">🔲 Go Full Screen</button> <!-- Fullscreen button -->
   </div>
 
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
       authDomain: "cityclinictoken.firebaseapp.com",
@@ -174,13 +207,17 @@
       messagingSenderId: "196394231581",
       appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
     };
+    
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+
     const tokenEl = document.getElementById('tokenNumber');
     const bellSound = document.getElementById('bellSound');
-
+    
     let lastToken = null;
     let lastUpdate = null;
+
+    // Listen for token updates
     database.ref('currentToken').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -189,11 +226,16 @@
         if (lastToken !== newToken || lastUpdate !== updatedAt) {
           lastToken = newToken;
           lastUpdate = updatedAt;
+
+          // Play bell + number audio      
           bellSound.pause();
           bellSound.currentTime = 0;
           bellSound.play();
+
           const audio = new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`);
           audio.play();
+
+          // Animate blink   
           tokenEl.classList.remove('blink');
           void tokenEl.offsetWidth;
           tokenEl.classList.add('blink');
@@ -202,7 +244,7 @@
       }
     });
 
-    // YouTube Embed Loader
+    // YouTube video loader
     const videoFrame = document.getElementById("ytVideo");
     database.ref('youtubeURL').on('value', (snapshot) => {
       const ytURL = snapshot.val();
@@ -220,6 +262,7 @@
       }
     });
 
+    // Update date and time
     function updateTime() {
       const now = new Date();
       const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -230,6 +273,7 @@
     setInterval(updateTime, 1000);
     updateTime();
 
+    // Weather data
     const apiKey = 'ece698c5756c98857c463ddc98000798';
     const city = 'Kanavalli';
     async function fetchWeather() {
@@ -244,8 +288,9 @@
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 600000);
+    setInterval(fetchWeather, 600000); // Update every 10 mins
 
+    // Show full screen button on load
     window.onload = () => {
       const box = document.getElementById('fullscreenBox');
       box.style.display = 'block';
