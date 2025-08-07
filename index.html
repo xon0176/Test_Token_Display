@@ -4,27 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>City Clinic Token Display</title>
+
+  <!-- Font Awesome for Mute/Unmute Icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
-    html, body{
+    html, body {
       height: 100%;
       margin: 0;
     }
 
     body {
-      margin: 0; /* Remove default margin */
-      font-family: 'Segoe UI', sans-serif; /* Set font style */
-      background: linear-gradient(90deg, #53d0d2, #128f91); /* Background gradient */
-      color: white; /* Default text color */
-      overflow: hidden; /* Hide scrollbars */
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(90deg, #53d0d2, #128f91);
+      color: white;
+      overflow: hidden;
     }
 
     .container {
-      display: flex; /* Flex layout for main container */
-      height: calc(100% - 50px); /* Full height */
-      width: 100vw; /* Full width */
+      display: flex;
+      height: calc(100% - 50px);
+      width: 100vw;
     }
 
     .left {
+      position: relative;
       width: 70%;
       display: flex;
       flex-direction: column;
@@ -32,23 +36,38 @@
     }
 
     .left img {
-      position: absolute; /* Position logo */
+      position: absolute;
       top: 30px;
-      left: 30px;
+      right: 30px;
+      left: auto;
       width: 180px;
-      height: auto;
-      z-index: 1;
+      z-index: 3;
     }
 
     .left iframe {
       flex: 1;
-      width: 100%; /* Full width video */
-      border: none; /* Remove borders */
+      width: 100%;
+      border: none;
       border-bottom-right-radius: 50px;
     }
 
+    #muteButton {
+      position: fixed;
+      bottom: 60px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: red;
+      color: white;
+      font-size: 24px;
+      border: none;
+      cursor: pointer;
+      z-index: 999;
+    }
+
     .info-row {
-      display: flex; /* Row of info boxes */
+      display: flex;
       justify-content: center;
       align-items: center;
       font-size: 36px;
@@ -69,33 +88,27 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 40px 20px;
-}
+    }
 
     .token-label {
       font-size: 70px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-      color: #ffffff;
-}
+      margin-bottom: 0.3em;
+      font-weight: 500;
+    }
 
     .token-number {
-      font-size: 280px;
-      font-weight: 900;
+      font-size: 260px;
+      font-weight: bold;
       color: #ffffff;
-      text-shadow: 0 0 5px #00ffff;
-      margin-bottom: 20px;
-}
+      margin-bottom: 0.1em;
+    }
 
     .token-number.blink {
-      animation: blink 0.6s ease-in-out 3; /* Blinking animation */
+      animation: blink 0.6s ease-in-out 3;
     }
 
     .token-text {
-      font-size: 70px;
-      color: #ffffff;
-      letter-spacing: 2px;
+      font-size: 80px;
     }
 
     @keyframes blink {
@@ -104,7 +117,7 @@
     }
 
     .footer {
-      position: fixed; /* Stick to bottom */
+      position: fixed;
       bottom: 0;
       width: 100%;
       background: #128f91;
@@ -112,13 +125,13 @@
       font-size: 36px;
       overflow: hidden;
       white-space: nowrap;
-      border-top: 2px solid black; /* Black line on top */
+      border-top: 2px solid black;
     }
 
     .scroll-text {
       display: inline-block;
       padding-left: 100%;
-      animation: scroll-left 30s linear infinite; /* Scrolling text */
+      animation: scroll-left 30s linear infinite;
     }
 
     @keyframes scroll-left {
@@ -154,29 +167,32 @@
   </style>
 </head>
 <body>
+
   <div class="container">
     <div class="left">
-      <img src="logo.png" alt="City Clinic Logo"> <!-- Clinic logo -->
-      <iframe id="ytVideo" allowfullscreen></iframe> <!-- YouTube video -->
+      <img src="logo.png" alt="City Clinic Logo">
+      <iframe id="ytVideo" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
+
       <div class="info-row">
         <div class="info-box">
           <div>🌡️</div>
-          <div id="temperature">--°C</div> <!-- Temperature display -->
+          <div id="temperature">--°C</div>
         </div>
         <div class="info-box">
           <div>💨</div>
-          <div id="wind">-- km/h</div> <!-- Wind speed display -->
+          <div id="wind">-- km/h</div>
         </div>
         <div class="info-box">
-          <div id="dateClock">--:--</div> <!-- Time display -->
-          <div id="dateAlt">-- --, ----</div> <!-- Date display -->
+          <div id="dateClock">--:--</div>
+          <div id="dateAlt">-- --, ----</div>
         </div>
       </div>
     </div>
 
     <div class="right">
       <div class="token-label">Now serving</div>
-      <div class="token-number" id="tokenNumber">--</div> <!-- Token number -->
+      <div class="token-number" id="tokenNumber">--</div>
       <div class="token-text">Number</div>
     </div>
   </div>
@@ -187,17 +203,16 @@
     </div>
   </div>
 
-  <audio id="bellSound" src="bell.mp3" preload="auto"></audio> <!-- Bell sound -->
+  <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
 
   <div id="fullscreenBox">
-    <button onclick="openFullscreen()">🔲 Go Full Screen</button> <!-- Fullscreen button -->
+    <button onclick="openFullscreen()">🔲 Go Full Screen</button>
   </div>
 
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
       authDomain: "cityclinictoken.firebaseapp.com",
@@ -207,17 +222,15 @@
       messagingSenderId: "196394231581",
       appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
     const tokenEl = document.getElementById('tokenNumber');
     const bellSound = document.getElementById('bellSound');
-    
+
     let lastToken = null;
     let lastUpdate = null;
 
-    // Listen for token updates
     database.ref('currentToken').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -227,7 +240,6 @@
           lastToken = newToken;
           lastUpdate = updatedAt;
 
-          // Play bell + number audio      
           bellSound.pause();
           bellSound.currentTime = 0;
           bellSound.play();
@@ -235,7 +247,6 @@
           const audio = new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`);
           audio.play();
 
-          // Animate blink   
           tokenEl.classList.remove('blink');
           void tokenEl.offsetWidth;
           tokenEl.classList.add('blink');
@@ -244,25 +255,38 @@
       }
     });
 
-    // YouTube video loader
     const videoFrame = document.getElementById("ytVideo");
-    database.ref('youtubeURL').on('value', (snapshot) => {
-      const ytURL = snapshot.val();
-      if (ytURL) {
-        let videoId = "";
-        if (ytURL.includes("youtu.be/")) {
-          videoId = ytURL.split("youtu.be/")[1];
-        } else if (ytURL.includes("watch?v=")) {
-          videoId = ytURL.split("watch?v=")[1].split("&")[0];
-        } else {
-          videoId = ytURL;
-        }
-        const embedURL = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
-        videoFrame.src = embedURL;
-      }
+    let isMuted = true;
+
+    const muteButton = document.getElementById("muteButton");
+    muteButton.addEventListener("click", () => {
+      isMuted = !isMuted;
+      updateYouTubeEmbed(); // reload video with mute/unmute
+      muteButton.innerHTML = isMuted
+        ? '<i class="fa-solid fa-volume-xmark"></i>'
+        : '<i class="fa-solid fa-volume-high"></i>';
     });
 
-    // Update date and time
+    function updateYouTubeEmbed() {
+      database.ref('youtubeURL').once('value').then((snapshot) => {
+        const ytURL = snapshot.val();
+        if (ytURL) {
+          let videoId = "";
+          if (ytURL.includes("youtu.be/")) {
+            videoId = ytURL.split("youtu.be/")[1];
+          } else if (ytURL.includes("watch?v=")) {
+            videoId = ytURL.split("watch?v=")[1].split("&")[0];
+          } else {
+            videoId = ytURL;
+          }
+          const embedURL = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${videoId}`;
+          videoFrame.src = embedURL;
+        }
+      });
+    }
+
+    updateYouTubeEmbed();
+
     function updateTime() {
       const now = new Date();
       const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -273,7 +297,6 @@
     setInterval(updateTime, 1000);
     updateTime();
 
-    // Weather data
     const apiKey = 'ece698c5756c98857c463ddc98000798';
     const city = 'Kanavalli';
     async function fetchWeather() {
@@ -288,9 +311,8 @@
       }
     }
     fetchWeather();
-    setInterval(fetchWeather, 600000); // Update every 10 mins
+    setInterval(fetchWeather, 600000); // every 10 minutes
 
-    // Show full screen button on load
     window.onload = () => {
       const box = document.getElementById('fullscreenBox');
       box.style.display = 'block';
