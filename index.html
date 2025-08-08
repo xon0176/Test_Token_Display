@@ -5,20 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>City Clinic Token Display</title>
 
-  <!-- Font Awesome for Mute/Unmute Icon -->
+  <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     html, body {
       height: 100%;
       margin: 0;
+      overflow: hidden;
     }
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(90deg, #53d0d2, #128f91);
       color: white;
-      overflow: hidden;
+    }
+
+    /* === Background Gradient Animation === */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(-45deg, #53d0d2, #128f91, #2e3c77, #3e629b);
+      background-size: 400% 400%;
+      animation: gradientFlow 30s ease infinite;
+      z-index: -3;
+    }
+
+    @keyframes gradientFlow {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* === Particle Canvas === */
+    #particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      pointer-events: none;
     }
 
     .container {
@@ -29,26 +57,17 @@
 
     .left {
       position: relative;
-      width: 70%;
+      width: 68.6%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .left img {
-      position: absolute;
-      top: 30px;
-      right: 30px;
-      left: auto;
-      width: 180px;
-      z-index: 3;
-    }
-
-    .left iframe {
+    #ytVideo {
       flex: 1;
       width: 100%;
       border: none;
-      border-bottom-right-radius: 50px;
+      border-bottom-right-radius: 20px;
     }
 
     #muteButton {
@@ -63,7 +82,7 @@
       font-size: 24px;
       border: none;
       cursor: pointer;
-      z-index: 999;
+      z-index: 10;
     }
 
     .info-row {
@@ -83,32 +102,44 @@
     }
 
     .right {
-      width: 30%;
+      width: 31.4%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      padding-top: 200px;
+    }
+
+    .right img {
+      position: absolute;
+      top: 5px;
+      width: 250px;
+      z-index: 3;
     }
 
     .token-label {
       font-size: 70px;
       margin-bottom: 0.3em;
       font-weight: 500;
+      padding-top: 50px;
     }
 
     .token-number {
-      font-size: 260px;
-      font-weight: bold;
+      font-size: 280px;
+      font-weight: 900;
       color: #ffffff;
-      margin-bottom: 0.1em;
+      text-shadow: 0 0 15px #00ffff;
+      margin-bottom: 20px;
     }
 
     .token-number.blink {
       animation: blink 0.6s ease-in-out 3;
     }
 
-    .token-text {
-      font-size: 80px;
+    .token-text { 
+      font-size: 70px;
+      margin-bottom: 0.3em;
+      font-weight: 500;
     }
 
     @keyframes blink {
@@ -120,12 +151,13 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: #128f91;
+      background: rgba(0, 0, 0, 0.2);
       color: #ffffff;
       font-size: 36px;
       overflow: hidden;
       white-space: nowrap;
       border-top: 2px solid black;
+      z-index: 2;
     }
 
     .scroll-text {
@@ -138,196 +170,206 @@
       0% { transform: translateX(0%); }
       100% { transform: translateX(-100%); }
     }
-
-    #fullscreenBox {
-      position: fixed;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      color: black;
-      border-radius: 10px;
-      padding: 20px 30px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-      font-family: sans-serif;
-      text-align: center;
-      z-index: 9999;
-      display: none;
-    }
-
-    #fullscreenBox button {
-      padding: 10px 20px;
-      font-size: 1.1em;
-      background: #0078D7;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="left">
-      <img src="logo.png" alt="City Clinic Logo">
-      <iframe id="ytVideo" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      <button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
+<!-- Particle Canvas -->
+<canvas id="particles"></canvas>
 
-      <div class="info-row">
-        <div class="info-box">
-          <div>🌡️</div>
-          <div id="temperature">--°C</div>
-        </div>
-        <div class="info-box">
-          <div>💨</div>
-          <div id="wind">-- km/h</div>
-        </div>
-        <div class="info-box">
-          <div id="dateClock">--:--</div>
-          <div id="dateAlt">-- --, ----</div>
-        </div>
-      </div>
-    </div>
+<div class="container">
+  <div class="left">
+    <div id="ytVideo"></div> <!-- YouTube IFrame will render here -->
+    <button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
 
-    <div class="right">
-      <div class="token-label">Now serving</div>
-      <div class="token-number" id="tokenNumber">--</div>
-      <div class="token-text">Number</div>
+    <div class="info-row">
+      <div class="info-box"><div>🌡️</div><div id="temperature">--°C</div></div>
+      <div class="info-box"><div>💨</div><div id="wind">-- km/h</div></div>
+      <div class="info-box"><div id="dateClock">--:--</div><div id="dateAlt">-- --, ----</div></div>
     </div>
   </div>
 
-  <div class="footer">
-    <div class="scroll-text">
-      😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
-    </div>
+  <div class="right">
+    <img src="logo.png" alt="City Clinic Logo">
+    <div class="token-label">Now serving</div>
+    <div class="token-number" id="tokenNumber">--</div>
+    <div class="token-text">Number</div>
   </div>
+</div>
 
-  <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
-
-  <div id="fullscreenBox">
-    <button onclick="openFullscreen()">🔲 Go Full Screen</button>
+<div class="footer">
+  <div class="scroll-text">
+    😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
   </div>
+</div>
 
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
-      authDomain: "cityclinictoken.firebaseapp.com",
-      databaseURL: "https://cityclinictoken-default-rtdb.firebaseio.com/",
-      projectId: "cityclinictoken",
-      storageBucket: "cityclinictoken.appspot.com",
-      messagingSenderId: "196394231581",
-      appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+<!-- YouTube Player API -->
+<script src="https://www.youtube.com/iframe_api"></script>
 
-    const tokenEl = document.getElementById('tokenNumber');
-    const bellSound = document.getElementById('bellSound');
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    let lastToken = null;
-    let lastUpdate = null;
+<!-- Floating Particle Script -->
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
 
-    database.ref('currentToken').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const newToken = data.token || '--';
-        const updatedAt = data.updatedAt || 0;
-        if (lastToken !== newToken || lastUpdate !== updatedAt) {
-          lastToken = newToken;
-          lastUpdate = updatedAt;
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
-          bellSound.pause();
-          bellSound.currentTime = 0;
-          bellSound.play();
-
-          const audio = new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`);
-          audio.play();
-
-          tokenEl.classList.remove('blink');
-          void tokenEl.offsetWidth;
-          tokenEl.classList.add('blink');
-        }
-        tokenEl.textContent = newToken;
-      }
-    });
-
-    const videoFrame = document.getElementById("ytVideo");
-    let isMuted = true;
-
-    const muteButton = document.getElementById("muteButton");
-    muteButton.addEventListener("click", () => {
-      isMuted = !isMuted;
-      updateYouTubeEmbed(); // reload video with mute/unmute
-      muteButton.innerHTML = isMuted
-        ? '<i class="fa-solid fa-volume-xmark"></i>'
-        : '<i class="fa-solid fa-volume-high"></i>';
-    });
-
-    function updateYouTubeEmbed() {
-      database.ref('youtubeURL').once('value').then((snapshot) => {
-        const ytURL = snapshot.val();
-        if (ytURL) {
-          let videoId = "";
-          if (ytURL.includes("youtu.be/")) {
-            videoId = ytURL.split("youtu.be/")[1];
-          } else if (ytURL.includes("watch?v=")) {
-            videoId = ytURL.split("watch?v=")[1].split("&")[0];
-          } else {
-            videoId = ytURL;
-          }
-          const embedURL = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${videoId}`;
-          videoFrame.src = embedURL;
-        }
+  function createParticles(count) {
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 3 + 4,
+        speedX: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5,
       });
     }
+  }
 
-    updateYouTubeEmbed();
+  function updateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let p of particles) {
+      p.x += p.speedX;
+      p.y += p.speedY;
 
-    function updateTime() {
-      const now = new Date();
-      const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-      const dateAlt = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      document.getElementById("dateClock").textContent = time;
-      document.getElementById("dateAlt").textContent = dateAlt;
+      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.fill();
     }
-    setInterval(updateTime, 1000);
-    updateTime();
+    requestAnimationFrame(updateParticles);
+  }
 
-    const apiKey = 'ece698c5756c98857c463ddc98000798';
-    const city = 'Kanavalli';
-    async function fetchWeather() {
-      try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
-        const data = await response.json();
-        document.getElementById("temperature").textContent = `${data.main.temp.toFixed(1)}°C`;
-        document.getElementById("wind").textContent = `${data.wind.speed.toFixed(1)} km/h`;
-      } catch (error) {
-        document.getElementById("temperature").textContent = `--°C`;
-        document.getElementById("wind").textContent = `-- km/h`;
+  createParticles(100);
+  updateParticles();
+</script>
+
+<!-- Your Custom Script -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
+    authDomain: "cityclinictoken.firebaseapp.com",
+    databaseURL: "https://cityclinictoken-default-rtdb.firebaseio.com/",
+    projectId: "cityclinictoken",
+    storageBucket: "cityclinictoken.appspot.com",
+    messagingSenderId: "196394231581",
+    appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  const tokenEl = document.getElementById('tokenNumber');
+  const bellSound = new Audio("bell.mp3");
+
+  let lastToken = null, lastUpdate = null;
+  database.ref('currentToken').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const newToken = data.token || '--';
+      const updatedAt = data.updatedAt || 0;
+      if (lastToken !== newToken || lastUpdate !== updatedAt) {
+        lastToken = newToken;
+        lastUpdate = updatedAt;
+        bellSound.pause();
+        bellSound.currentTime = 0;
+        bellSound.play();
+        const audio = new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`);
+        audio.play();
+        tokenEl.classList.remove('blink');
+        void tokenEl.offsetWidth;
+        tokenEl.classList.add('blink');
       }
+      tokenEl.textContent = newToken;
     }
-    fetchWeather();
-    setInterval(fetchWeather, 600000); // every 10 minutes
+  });
 
-    window.onload = () => {
-      const box = document.getElementById('fullscreenBox');
-      box.style.display = 'block';
-      setTimeout(() => {
-        box.style.display = 'none';
-      }, 10000);
-    };
-
-    function openFullscreen() {
-      const el = document.documentElement;
-      if (el.requestFullscreen) el.requestFullscreen();
-      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else if (el.msRequestFullscreen) el.msRequestFullscreen();
-      document.getElementById('fullscreenBox').style.display = 'none';
+  let player;
+  let isMuted = true;
+  function onYouTubeIframeAPIReady() {
+    database.ref('youtubeURL').once('value').then(snapshot => {
+      const ytURL = snapshot.val();
+      let videoId = "";
+      if (ytURL.includes("youtu.be/")) {
+        videoId = ytURL.split("youtu.be/")[1];
+      } else if (ytURL.includes("watch?v=")) {
+        videoId = ytURL.split("watch?v=")[1].split("&")[0];
+      }
+      player = new YT.Player('ytVideo', {
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: videoId,
+          controls: 0,
+          modestbranding: 1,
+        },
+        events: {
+          onReady: (event) => {
+            event.target.mute();
+            event.target.playVideo();
+          }
+        }
+      });
+    });
+  }
+    
+  database.ref('muteStatus').on('value', snapshot => {
+  const muteState = snapshot.val();
+  if (player) {
+    if (muteState) {
+      player.mute();
+      muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+    } else {
+      player.unMute();
+      player.setVolume(35); // default volume 35%
+      // If video is not playing, play it again without reloading
+      if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
+        player.playVideo();
+      }
+      muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
     }
-  </script>
+  }
+});
+
+  function updateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const dateAlt = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById("dateClock").textContent = time;
+    document.getElementById("dateAlt").textContent = dateAlt;
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  const apiKey = 'ece698c5756c98857c463ddc98000798';
+  const city = 'Kanavalli';
+  async function fetchWeather() {
+    try {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+      const data = await res.json();
+      document.getElementById("temperature").textContent = `${data.main.temp.toFixed(1)}°C`;
+      document.getElementById("wind").textContent = `${data.wind.speed.toFixed(1)} km/h`;
+    } catch {
+      document.getElementById("temperature").textContent = `--°C`;
+      document.getElementById("wind").textContent = `-- km/h`;
+    }
+  }
+  fetchWeather();
+  setInterval(fetchWeather, 600000);
+</script>
+
 </body>
 </html>
