@@ -295,58 +295,32 @@
     }
   });
 
-  let player;
-  let isMuted = true;
-  function onYouTubeIframeAPIReady() {
-    database.ref('youtubeURL').once('value').then(snapshot => {
-      const ytURL = snapshot.val();
-      let videoId = "";
-      if (ytURL.includes("youtu.be/")) {
-        videoId = ytURL.split("youtu.be/")[1];
-      } else if (ytURL.includes("watch?v=")) {
-        videoId = ytURL.split("watch?v=")[1].split("&")[0];
-      }
-      player = new YT.Player('ytVideo', {
-        videoId: videoId,
-        playerVars: {
-          autoplay: 1,
-          mute: 1,
-          loop: 1,
-          playlist: videoId,
-          controls: 0,
-          modestbranding: 1,
-        },
-        events: {
-          onReady: (event) => {
-            event.target.mute();
-            event.target.playVideo();
-          }
+// Unified mute + play/pause controls
+
+// Mute/Unmute listener
+firebase.database().ref("mute").on("value", (snapshot) => {
+    const isMuted = snapshot.val();
+    if (player) {
+        if (isMuted) {
+            player.mute();
+            muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+        } else {
+            player.unMute();
+            player.setVolume(35); // default volume 30–40%
+            muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
         }
-      });
-    });
-  }
-    
-  database.ref('muteStatus').on('value', snapshot => {
-  const muteState = snapshot.val();
-  if (player) {
-    if (muteState) {
-      player.mute();
-      muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-    } else {
-      player.unMute();
-      player.setVolume(10); // default volume
-      muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
     }
-  }
 });
 
-  // Assume you have a field in Firebase called "videoPlay"
+// Play/Pause listener
 firebase.database().ref("videoPlay").on("value", (snapshot) => {
     const shouldPlay = snapshot.val();
-    if (shouldPlay) {
-        player.playVideo();
-    } else {
-        player.pauseVideo();
+    if (player) {
+        if (shouldPlay) {
+            player.playVideo();
+        } else {
+            player.pauseVideo();
+        }
     }
 });
 
