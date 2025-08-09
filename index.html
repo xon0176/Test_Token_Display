@@ -334,14 +334,20 @@
       muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
     } else {
       player.unMute();
-      player.setVolume(35); // default volume 35%
-      // If video is not playing, play it again without reloading
-      if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
-        player.playVideo();
-      }
+      player.setVolume(10); // default volume
       muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
     }
   }
+});
+
+  // Assume you have a field in Firebase called "videoPlay"
+firebase.database().ref("videoPlay").on("value", (snapshot) => {
+    const shouldPlay = snapshot.val();
+    if (shouldPlay) {
+        player.playVideo();
+    } else {
+        player.pauseVideo();
+    }
 });
 
   function updateTime() {
