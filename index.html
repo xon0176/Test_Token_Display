@@ -272,15 +272,14 @@
   let lastToken = null, lastUpdate = null;
   let userInteracted = false;
 
-  // Unlock audio on first click/tap
+  // Unlock audio after first click/tap
   function enableAudio() {
     if (!userInteracted) {
       userInteracted = true;
       console.log("User interaction detected — audio allowed.");
-      database.ref("muteStatus").once("value").then(snap => {
-        if (!snap.val() && playerReady) {
+      database.ref("videoMute").once("value").then(snap => {
+        if (snap.val() === "UNMUTE" && playerReady) {
           player.unMute();
-          player.setVolume(5);
         }
       });
     }
@@ -288,44 +287,58 @@
   document.body.addEventListener("click", enableAudio);
   document.body.addEventListener("touchstart", enableAudio);
 
-  // Mute button syncs with Firebase
+  // Manual mute button (updates Firebase)
   muteButton.addEventListener("click", () => {
-    database.ref("muteStatus").once("value").then(snap => {
-      database.ref("muteStatus").set(!snap.val());
+    database.ref("videoMute").once("value").then(snap => {
+      const newState = (snap.val() === "MUTE") ? "UNMUTE" : "MUTE";
+      database.ref("videoMute").set(newState);
     });
   });
 
   // YouTube API ready
   function onYouTubeIframeAPIReady() {
     database.ref('youtubeURL').on('value', (snapshot) => {
-  const ytURL = snapshot.val();
-  let videoId = "";
-  if (ytURL.includes("youtu.be/")) videoId = ytURL.split("youtu.be/")[1];
-  else if (ytURL.includes("watch?v=")) videoId = ytURL.split("watch?v=")[1].split("&")[0];
+      const ytURL = snapshot.val();
+      if (!ytURL) return;
 
-  if (playerReady) {
-    player.loadVideoById(videoId); // Changes video without reloading page
-  } else {
-    player = new YT.Player('ytVideo', {
-      videoId: videoId,
-      playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, controls: 0, modestbranding: 1 },
-      events: { onReady: (event) => { playerReady = true; event.target.playVideo(); } }
+      let videoId = "";
+      if (ytURL.includes("youtu.be/")) {
+        videoId = ytURL.split("youtu.be/")[1].split("?")[0];
+      } else if (ytURL.includes("watch?v=")) {
+        videoId = ytURL.split("watch?v=")[1].split("&")[0];
+      } else {
+        videoId = ytURL.trim();
+      }
+
+      if (!videoId) return;
+
+      if (playerReady) {
+        player.loadVideoById(videoId);
+      } else {
+        player = new YT.Player('ytVideo', {
+          videoId: videoId,
+          playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, controls: 0, modestbranding: 1 },
+          events: { 
+            onReady: (event) => { 
+              playerReady = true;
+              event.target.playVideo();
+            } 
+          }
+        });
+      }
     });
   }
-});
-  }
 
-  // Listen for mute/unmute from Firebase
-  database.ref("muteStatus").on("value", (snapshot) => {
-    const isMuted = snapshot.val();
-    lastMuteState = isMuted;
+  // Mute/Unmute listener
+  database.ref("videoMute").on("value", (snapshot) => {
+    const muteState = snapshot.val();
     if (playerReady) {
-      if (isMuted) {
+      if (muteState === "MUTE") {
         player.mute();
         muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-      } else if (userInteracted) {
+      } else if (muteState === "UNMUTE" && userInteracted) {
         player.unMute();
-        player.setVolume(35);
+        player.setVolume(35); // default volume on unmute
         muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
       }
     }
@@ -333,32 +346,65 @@
 
   // Play/Pause listener
   database.ref("videoPlay").on("value", (snapshot) => {
-    const shouldPlay = snapshot.val();
+    const playState = snapshot.val();
     if (playerReady) {
-      if (shouldPlay) player.playVideo();
-      else player.pauseVideo();
+      if (playState === "PLAY") {
+        player.playVideo();
+      } else if (playState === "PAUSE") {
+        player.pauseVideo();
+      }
+    }
+  });
+
+  // Volume listener (0–100 from Firebase)
+  database.ref("videoVolume").on("value", (snapshot) => {
+    const vol = parseInt(snapshot.val(), 10);
+    if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100) {
+      player.setVolume(vol);
     }
   });
 
   // Token change listener
-  database.ref('currentToken').on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      const newToken = data.token || '--';
-      const updatedAt = data.updatedAt || 0;
-      if (lastToken !== newToken || lastUpdate !== updatedAt) {
-        lastToken = newToken;
-        lastUpdate = updatedAt;
-        if (userInteracted) {
-          new Audio("bell.mp3").play();
-          new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
-        }
-        tokenEl.classList.remove('blink'); void tokenEl.offsetWidth;
-        tokenEl.classList.add('blink');
+let previousVolume = 30; // Default start volume
+
+database.ref('currentToken').on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    const newToken = data.token || '--';
+    const updatedAt = data.updatedAt || 0;
+
+    if (lastToken !== newToken || lastUpdate !== updatedAt) {
+      lastToken = newToken;
+      lastUpdate = updatedAt;
+
+      if (playerReady) {
+        // Save current volume
+        const currentVol = player.getVolume();
+        previousVolume = currentVol > 0 ? currentVol : previousVolume;
+
+        // Reduce volume to 5 for announcements
+        player.setVolume(5);
       }
-      tokenEl.textContent = newToken;
+
+      // Play sounds
+      if (userInteracted) {
+        new Audio("bell.mp3").play();
+        new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
+      }
+
+      // Restore volume after 5 seconds
+      setTimeout(() => {
+        if (playerReady) player.setVolume(previousVolume);
+      }, 5000);
+
+      // Blink token number
+      tokenEl.classList.remove('blink'); void tokenEl.offsetWidth;
+      tokenEl.classList.add('blink');
     }
-  });
+
+    tokenEl.textContent = newToken;
+  }
+});
 
   // Clock  
   function updateTime() {
