@@ -297,19 +297,23 @@
 
   // YouTube API ready
   function onYouTubeIframeAPIReady() {
-    database.ref('youtubeURL').once('value').then(snapshot => {
+    database.ref('youtubeURL').on('value',snapshot => {
       const ytURL = snapshot.val();
       let videoId = "";
-      if (ytURL.includes("youtu.be/")) videoId = ytURL.split("youtu.be/")[1];
-      else if (ytURL.includes("watch?v=")) videoId = ytURL.split("watch?v=")[1].split("&")[0];
+      if (ytURL.includes("youtu.be/")) {
+        videoId = ytURL.split("youtu.be/")[1];
+      } else if (ytURL.includes("watch?v=")) {
+        videoId = ytURL.split("watch?v=")[1].split("&")[0];
+      }
 
+      if (player)
       player = new YT.Player('ytVideo', {
         videoId: videoId,
         playerVars: { autoplay: 1, mute: 1, loop: 1, playlist: videoId, controls: 0, modestbranding: 1 },
         events: { onReady: (event) => { playerReady = true; event.target.mute(); event.target.playVideo(); } }
       });
-    });
-  }
+    }
+  )};
 
   // Listen for mute/unmute from Firebase
   database.ref("muteStatus").on("value", (snapshot) => {
