@@ -8,7 +8,8 @@ This guide will help you set up and run the **City Clinic Token Display** with f
 
 ## 2. Download the Token System File
 1. Go to the GitHub link:  
-   **[https://github.com/xon0176/Test_Token_Display](https://github.com/xon0176/Test_Token_Display)**
+   **[https://github.com/xon0176/Test_Token_Display](https://github.com/xon0176/Test_Token_Display)**  
+   📌 *Bookmark this webpage in your browser for quick access later.*
 2. Click on **`TOKENSYSTEM 2.xlsm`**.
 3. On the file page, find the **Download** button.  
    *(It’s just below the “History” button, which is on the right side, middle of the page.)*
@@ -36,7 +37,8 @@ This guide will help you set up and run the **City Clinic Token Display** with f
 
 ## 4. Starting the Display with Controls
 1. Open the display page:  
-   **[https://xon0176.github.io/Test_Token_Display/index.html](https://xon0176.github.io/Test_Token_Display/index.html)**
+   **[https://xon0176.github.io/Test_Token_Display/index.html](https://xon0176.github.io/Test_Token_Display/index.html)**  
+   📌 *Bookmark this display page too for quick access.*
 2. You’ll see a muted YouTube video — click the **Unmute** button **twice** to allow sound (user interaction requirement).
 3. Minimize the browser window (keep it running in the background).
 4. Open **TOKENSYSTEM 2.xlsm** from your Desktop.
