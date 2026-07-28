@@ -295,141 +295,194 @@
     });
   });
 
-  // YouTube API ready
-function onYouTubeIframeAPIReady() {
+  // =======================
+// SMART YOUTUBE LOADER
+// Supports:
+// ✅ youtu.be
+// ✅ watch?v=
+// ✅ playlist?list=
+// ✅ watch?v=...&list=...
+// ✅ shorts/
+// ✅ live/
+// =======================
 
-  database.ref('youtubeURL').on('value', (snapshot) => {
+function extractYouTubeData(url) {
 
-    const ytURL = snapshot.val();
-    if (!ytURL) return;
+    let videoId = "";
+    let playlistId = "";
+    let type = "";
 
-    console.log("Received URL:", ytURL);
+    try {
 
-    // -----------------------------
-    // PLAYLIST
-    // -----------------------------
-    if (ytURL.includes("list=")) {
+        const u = new URL(url);
 
-      const playlistId = ytURL.split("list=")[1].split("&")[0];
+        // Playlist
+        if (u.searchParams.get("list")) {
+            playlistId = u.searchParams.get("list");
+        }
 
-      console.log("Playlist:", playlistId);
+        // Normal watch
+        if (u.searchParams.get("v")) {
+            videoId = u.searchParams.get("v");
+        }
 
-      if (!playerReady) {
+        // youtu.be
+        if (u.hostname.includes("youtu.be")) {
+            videoId = u.pathname.replace("/", "");
+        }
 
-        player = new YT.Player('ytVideo', {
+        // Shorts
+        if (u.pathname.includes("/shorts/")) {
+            videoId = u.pathname.split("/shorts/")[1].split("/")[0];
+        }
 
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            listType: "playlist",
-            list: playlistId
-          },
+        // Live
+        if (u.pathname.includes("/live/")) {
+            videoId = u.pathname.split("/live/")[1].split("/")[0];
+        }
 
-          events: {
+    } catch (e) {
 
-            onReady: function(event) {
+        // User pasted only ID
 
-              playerReady = true;
-
-              event.target.mute();
-              event.target.playVideo();
-
-            }
-
-          }
-
-        });
-
-      } else {
-
-        player.loadPlaylist({
-          listType: "playlist",
-          list: playlistId,
-          index: 0,
-          startSeconds: 0
-        });
-
-      }
-
+        if (url.startsWith("PL")) {
+            playlistId = url.trim();
+        }
+        else {
+            videoId = url.trim();
+        }
     }
 
-    // -----------------------------
-    // SINGLE VIDEO
-    // -----------------------------
-    else {
+    if (playlistId && videoId)
+        type = "WATCH_PLAYLIST";
 
-      let videoId = "";
+    else if (playlistId)
+        type = "PLAYLIST";
 
-      if (ytURL.includes("youtu.be/")) {
+    else
+        type = "VIDEO";
 
-        videoId = ytURL
-          .split("youtu.be/")[1]
-          .split("?")[0];
-
-      }
-      else if (ytURL.includes("watch?v=")) {
-
-        videoId = ytURL
-          .split("watch?v=")[1]
-          .split("&")[0];
-
-      }
-      else {
-
-        videoId = ytURL.trim();
-
-      }
-
-      if (!videoId) return;
-
-      console.log("Video:", videoId);
-
-      if (!playerReady) {
-
-        player = new YT.Player('ytVideo', {
-
-          videoId: videoId,
-
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            loop: 1,
-            playlist: videoId
-          },
-
-          events: {
-
-            onReady: function(event) {
-
-              playerReady = true;
-
-              event.target.mute();
-              event.target.playVideo();
-
-            }
-
-          }
-
-        });
-
-      } else {
-
-        player.loadVideoById(videoId);
-
-      }
-
-    }
-
-  });
-
+    return {
+        type,
+        videoId,
+        playlistId
+    };
 }
 
+function onYouTubeIframeAPIReady() {
+
+    database.ref("youtubeURL").on("value", (snapshot) => {
+
+        const url = snapshot.val();
+
+        if (!url) return;
+
+        const yt = extractYouTubeData(url);
+
+        console.log(yt);
+
+        // --------------------------------
+        // PLAYER ALREADY EXISTS
+        // --------------------------------
+
+        if (playerReady) {
+
+            switch (yt.type) {
+
+                case "PLAYLIST":
+
+                    player.loadPlaylist({
+                        listType: "playlist",
+                        list: yt.playlistId,
+                        index: 0
+                    });
+
+                    break;
+
+                case "WATCH_PLAYLIST":
+
+                    player.loadPlaylist({
+                        listType: "playlist",
+                        list: yt.playlistId,
+                        index: 0
+                    });
+
+                    break;
+
+                default:
+
+                    player.loadVideoById(yt.videoId);
+
+                    break;
+            }
+
+            return;
+        }
+
+        // --------------------------------
+        // FIRST LOAD
+        // --------------------------------
+
+        let playerOptions = {
+
+            width: "100%",
+            height: "100%",
+
+            playerVars: {
+
+                autoplay: 1,
+                controls: 0,
+                mute: 1,
+                rel: 0,
+                modestbranding: 1,
+                playsinline: 1
+
+            },
+
+            events: {
+
+                onReady: function (event) {
+
+                    playerReady = true;
+
+                    event.target.playVideo();
+
+                }
+
+            }
+
+        };
+
+        switch (yt.type) {
+
+            case "PLAYLIST":
+
+                playerOptions.playerVars.listType = "playlist";
+                playerOptions.playerVars.list = yt.playlistId;
+
+                break;
+
+            case "WATCH_PLAYLIST":
+
+                playerOptions.playerVars.listType = "playlist";
+                playerOptions.playerVars.list = yt.playlistId;
+
+                break;
+
+            default:
+
+                playerOptions.videoId = yt.videoId;
+                playerOptions.playerVars.loop = 1;
+                playerOptions.playerVars.playlist = yt.videoId;
+
+                break;
+        }
+
+        player = new YT.Player("ytVideo", playerOptions);
+
+    });
+
+}
   // Mute/Unmute listener
   database.ref("videoMute").on("value", (snapshot) => {
     const muteState = snapshot.val();
