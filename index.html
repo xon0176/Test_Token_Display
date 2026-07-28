@@ -252,9 +252,9 @@
   updateParticles();
 </script>
 
-<!-- Firebase Script -->
+<!-- Firebase & YouTube Script -->
 <script>
-  // Firebase
+  // Firebase Initialization
   firebase.initializeApp({
     apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
     authDomain: "cityclinictoken.firebaseapp.com",
@@ -271,8 +271,9 @@
   const tokenEl = document.getElementById('tokenNumber');
   let lastToken = null, lastUpdate = null;
   let userInteracted = false;
+  let currentLoadedUrl = "";
 
-  // Unlock audio after first click/tap
+  // Unlock audio after first user gesture
   function enableAudio() {
     if (!userInteracted) {
       userInteracted = true;
@@ -287,7 +288,7 @@
   document.body.addEventListener("click", enableAudio);
   document.body.addEventListener("touchstart", enableAudio);
 
-  // Manual mute button (updates Firebase)
+  // Manual mute toggle button
   muteButton.addEventListener("click", () => {
     database.ref("videoMute").once("value").then(snap => {
       const newState = (snap.val() === "MUTE") ? "UNMUTE" : "MUTE";
@@ -295,213 +296,128 @@
     });
   });
 
-  // =======================
-// SMART YOUTUBE LOADER
-// Supports:
-// ✅ youtu.be
-// ✅ watch?v=
-// ✅ playlist?list=
-// ✅ watch?v=...&list=...
-// ✅ shorts/
-// ✅ live/
-// =======================
-
-function extractYouTubeData(url) {
-
+  // YouTube Parser
+  function extractYouTubeData(url) {
     let videoId = "";
     let playlistId = "";
-    let type = "";
+    let type = "VIDEO";
+
+    if (!url) return { type: "NONE" };
 
     try {
+      const u = new URL(url.trim());
 
-        const u = new URL(url);
+      if (u.searchParams.get("list")) {
+        playlistId = u.searchParams.get("list");
+      }
 
-        // Playlist
-        if (u.searchParams.get("list")) {
-            playlistId = u.searchParams.get("list");
-        }
-
-        // Normal watch
-        if (u.searchParams.get("v")) {
-            videoId = u.searchParams.get("v");
-        }
-
-        // youtu.be
-        if (u.hostname.includes("youtu.be")) {
-            videoId = u.pathname.replace("/", "");
-        }
-
-        // Shorts
-        if (u.pathname.includes("/shorts/")) {
-            videoId = u.pathname.split("/shorts/")[1].split("/")[0];
-        }
-
-        // Live
-        if (u.pathname.includes("/live/")) {
-            videoId = u.pathname.split("/live/")[1].split("/")[0];
-        }
-
+      if (u.searchParams.get("v")) {
+        videoId = u.searchParams.get("v");
+      } else if (u.hostname.includes("youtu.be")) {
+        videoId = u.pathname.replace("/", "");
+      } else if (u.pathname.includes("/shorts/")) {
+        videoId = u.pathname.split("/shorts/")[1].split("/")[0];
+      } else if (u.pathname.includes("/live/")) {
+        videoId = u.pathname.split("/live/")[1].split("/")[0];
+      }
     } catch (e) {
-
-        // User pasted only ID
-
-        if (url.startsWith("PL")) {
-            playlistId = url.trim();
-        }
-        else {
-            videoId = url.trim();
-        }
+      const cleanUrl = url.trim();
+      if (cleanUrl.startsWith("PL") || cleanUrl.startsWith("UU") || cleanUrl.startsWith("FL")) {
+        playlistId = cleanUrl;
+      } else {
+        videoId = cleanUrl;
+      }
     }
 
-    if (playlistId && videoId)
-        type = "WATCH_PLAYLIST";
+    if (playlistId) {
+      type = "PLAYLIST";
+    } else if (videoId) {
+      type = "VIDEO";
+    }
 
-    else if (playlistId)
-        type = "PLAYLIST";
+    return { type, videoId, playlistId };
+  }
 
-    else
-        type = "VIDEO";
+  // Load Content into active player instance
+  function loadContentIntoPlayer(yt) {
+    if (!playerReady || !player) return;
 
-    return {
-        type,
-        videoId,
-        playlistId
-    };
-}
+    if (yt.type === "PLAYLIST") {
+      player.loadPlaylist({
+        listType: "playlist",
+        list: yt.playlistId,
+        index: 0
+      });
+    } else if (yt.type === "VIDEO") {
+      player.loadVideoById({
+        videoId: yt.videoId
+      });
+    }
+  }
 
-function onYouTubeIframeAPIReady() {
+  // YouTube API Ready Handler
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player("ytVideo", {
+      width: "100%",
+      height: "100%",
+      videoId: "M7lc1UVf-VE", // Reliable placeholder video to prevent initialization errors
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        mute: 1,
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1
+      },
+      events: {
+        onReady: function () {
+          playerReady = true;
 
-    database.ref("youtubeURL").on("value", (snapshot) => {
-
-        const url = snapshot.val();
-
-        if (!url) return;
-
-        const yt = extractYouTubeData(url);
-
-        console.log(yt);
-
-        // --------------------------------
-        // PLAYER ALREADY EXISTS
-        // --------------------------------
-
-        if (playerReady) {
-
-            switch (yt.type) {
-
-                case "PLAYLIST":
-
-                    player.loadPlaylist({
-                        listType: "playlist",
-                        list: yt.playlistId,
-                        index: 0
-                    });
-
-                    break;
-
-                case "WATCH_PLAYLIST":
-
-                    player.loadPlaylist({
-                        listType: "playlist",
-                        list: yt.playlistId,
-                        index: 0
-                    });
-
-                    break;
-
-                default:
-
-                    player.loadVideoById(yt.videoId);
-
-                    break;
+          // Sync initial URL from Firebase once ready
+          database.ref("youtubeURL").once("value").then((snapshot) => {
+            const url = snapshot.val();
+            if (url) {
+              currentLoadedUrl = url;
+              const yt = extractYouTubeData(url);
+              loadContentIntoPlayer(yt);
             }
-
-            return;
+          });
         }
-
-        // --------------------------------
-        // FIRST LOAD
-        // --------------------------------
-
-        let playerOptions = {
-
-            width: "100%",
-            height: "100%",
-
-            playerVars: {
-
-                autoplay: 1,
-                controls: 0,
-                mute: 1,
-                rel: 0,
-                modestbranding: 1,
-                playsinline: 1
-
-            },
-
-            events: {
-
-                onReady: function (event) {
-
-                    playerReady = true;
-
-                    event.target.playVideo();
-
-                }
-
-            }
-
-        };
-
-        switch (yt.type) {
-
-            case "PLAYLIST":
-
-                playerOptions.playerVars.listType = "playlist";
-                playerOptions.playerVars.list = yt.playlistId;
-
-                break;
-
-            case "WATCH_PLAYLIST":
-
-                playerOptions.playerVars.listType = "playlist";
-                playerOptions.playerVars.list = yt.playlistId;
-
-                break;
-
-            default:
-
-                playerOptions.videoId = yt.videoId;
-                playerOptions.playerVars.loop = 1;
-                playerOptions.playerVars.playlist = yt.videoId;
-
-                break;
-        }
-
-        player = new YT.Player("ytVideo", playerOptions);
-
+      }
     });
 
-}
-  // Mute/Unmute listener
+    // Real-time Firebase listener for URL changes
+    database.ref("youtubeURL").on("value", (snapshot) => {
+      const url = snapshot.val();
+      if (!url || url === currentLoadedUrl) return;
+
+      currentLoadedUrl = url;
+      const yt = extractYouTubeData(url);
+      if (playerReady) {
+        loadContentIntoPlayer(yt);
+      }
+    });
+  }
+
+  // Firebase Mute/Unmute State Listener
   database.ref("videoMute").on("value", (snapshot) => {
     const muteState = snapshot.val();
-    if (playerReady) {
+    if (playerReady && player.mute) {
       if (muteState === "MUTE") {
         player.mute();
         muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
       } else if (muteState === "UNMUTE" && userInteracted) {
         player.unMute();
-        player.setVolume(35); // default volume on unmute
+        player.setVolume(35);
         muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
       }
     }
   });
 
-  // Play/Pause listener
+  // Firebase Play/Pause State Listener
   database.ref("videoPlay").on("value", (snapshot) => {
     const playState = snapshot.val();
-    if (playerReady) {
+    if (playerReady && player.playVideo) {
       if (playState === "PLAY") {
         player.playVideo();
       } else if (playState === "PAUSE") {
@@ -510,57 +426,54 @@ function onYouTubeIframeAPIReady() {
     }
   });
 
-  // Volume listener (0–100 from Firebase)
+  // Firebase Volume Level Listener (0–100)
   database.ref("videoVolume").on("value", (snapshot) => {
     const vol = parseInt(snapshot.val(), 10);
-    if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100) {
+    if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100 && player.setVolume) {
       player.setVolume(vol);
     }
   });
 
-  // Token change listener
-let previousVolume = 30; // Default start volume
+  // Firebase Token Announcement Listener
+  let previousVolume = 30;
 
-database.ref('currentToken').on('value', (snapshot) => {
-  const data = snapshot.val();
-  if (data) {
-    const newToken = data.token || '--';
-    const updatedAt = data.updatedAt || 0;
+  database.ref('currentToken').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const newToken = data.token || '--';
+      const updatedAt = data.updatedAt || 0;
 
-    if (lastToken !== newToken || lastUpdate !== updatedAt) {
-      lastToken = newToken;
-      lastUpdate = updatedAt;
+      if (lastToken !== newToken || lastUpdate !== updatedAt) {
+        lastToken = newToken;
+        lastUpdate = updatedAt;
 
-      if (playerReady) {
-        // Save current volume
-        const currentVol = player.getVolume();
-        previousVolume = currentVol > 0 ? currentVol : previousVolume;
+        if (playerReady && player.getVolume) {
+          const currentVol = player.getVolume();
+          previousVolume = currentVol > 0 ? currentVol : previousVolume;
+          player.setVolume(5);
+        }
 
-        // Reduce volume to 5 for announcements
-        player.setVolume(5);
+        if (userInteracted) {
+          new Audio("bell.mp3").play();
+          new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
+        }
+
+        setTimeout(() => {
+          if (playerReady && player.setVolume) {
+            player.setVolume(previousVolume);
+          }
+        }, 5000);
+
+        tokenEl.classList.remove('blink');
+        void tokenEl.offsetWidth;
+        tokenEl.classList.add('blink');
       }
 
-      // Play sounds
-      if (userInteracted) {
-        new Audio("bell.mp3").play();
-        new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
-      }
-
-      // Restore volume after 5 seconds
-      setTimeout(() => {
-        if (playerReady) player.setVolume(previousVolume);
-      }, 5000);
-
-      // Blink token number
-      tokenEl.classList.remove('blink'); void tokenEl.offsetWidth;
-      tokenEl.classList.add('blink');
+      tokenEl.textContent = newToken;
     }
+  });
 
-    tokenEl.textContent = newToken;
-  }
-});
-
-  // Clock  
+  // Clock
   function updateTime() {
     const now = new Date();
     const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -571,7 +484,7 @@ database.ref('currentToken').on('value', (snapshot) => {
   setInterval(updateTime, 1000);
   updateTime();
 
-  // Weather
+  // Weather Widget
   const apiKey = 'ece698c5756c98857c463ddc98000798';
   const city = 'Kanavalli';
   async function fetchWeather() {
