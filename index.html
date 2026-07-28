@@ -272,6 +272,7 @@
   let lastToken = null, lastUpdate = null;
   let userInteracted = false;
   let currentLoadedUrl = "";
+  let currentContentType = "VIDEO";
 
   // Unlock audio after first user gesture
   function enableAudio() {
@@ -342,13 +343,17 @@
   function loadContentIntoPlayer(yt) {
     if (!playerReady || !player) return;
 
+    currentContentType = yt.type;
+
     if (yt.type === "PLAYLIST") {
+      player.setLoop(true); // Enable playlist loop
       player.loadPlaylist({
         listType: "playlist",
         list: yt.playlistId,
         index: 0
       });
     } else if (yt.type === "VIDEO") {
+      player.setLoop(true);
       player.loadVideoById({
         videoId: yt.videoId
       });
@@ -360,14 +365,15 @@
     player = new YT.Player("ytVideo", {
       width: "100%",
       height: "100%",
-      videoId: "M7lc1UVf-VE", // Reliable placeholder video to prevent initialization errors
+      videoId: "M7lc1UVf-VE", // Reliable placeholder video
       playerVars: {
         autoplay: 1,
         controls: 0,
         mute: 1,
         rel: 0,
         modestbranding: 1,
-        playsinline: 1
+        playsinline: 1,
+        loop: 1
       },
       events: {
         onReady: function () {
@@ -382,6 +388,16 @@
               loadContentIntoPlayer(yt);
             }
           });
+        },
+        onStateChange: function (event) {
+          // Trigger when video or playlist ends (YT.PlayerState.ENDED = 0)
+          if (event.data === YT.PlayerState.ENDED) {
+            if (currentContentType === "PLAYLIST") {
+              player.playVideoAt(0); // Restart playlist from first video
+            } else {
+              player.playVideo(); // Restart single video/live replay
+            }
+          }
         }
       }
     });
