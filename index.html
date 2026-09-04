@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>City Clinic Token Display</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     html, body {
@@ -21,7 +23,8 @@
     body::before {
       content: "";
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       background: linear-gradient(-45deg, #53d0d2, #128f91, #2e3c77, #3e629b);
@@ -31,14 +34,15 @@
     }
 
     @keyframes gradientFlow {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     #particles {
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       z-index: -2;
@@ -56,7 +60,6 @@
       width: 68.6%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
     #ytVideo {
@@ -79,22 +82,6 @@
       border: none;
       cursor: pointer;
       z-index: 10;
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 36px;
-      gap: 180px;
-      color: #fff;
-      padding: 20px;
-      z-index: 2;
-    }
-
-    .info-box {
-      width: 200px;
-      text-align: center;
     }
 
     .right {
@@ -132,15 +119,20 @@
       animation: blink 0.6s ease-in-out 3;
     }
 
-    .token-text { 
+    .token-text {
       font-size: 70px;
       margin-bottom: 0.3em;
       font-weight: 500;
     }
 
     @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
+      0%, 100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
     }
 
     .footer {
@@ -163,41 +155,63 @@
     }
 
     @keyframes scroll-left {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
+      0% {
+        transform: translateX(0%);
+      }
+
+      100% {
+        transform: translateX(-100%);
+      }
     }
   </style>
 </head>
+
 <body>
 
 <!-- Particle Canvas -->
 <canvas id="particles"></canvas>
 
 <div class="container">
+
+  <!-- LEFT SIDE -->
   <div class="left">
-    <div id="ytVideo"></div> <!-- YouTube IFrame will render here -->
-    <button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
 
-    <div class="info-row">
-      <div class="info-box"><div>🌡️</div><div id="temperature">--°C</div></div>
-      <div class="info-box"><div>💨</div><div id="wind">-- km/h</div></div>
-      <div class="info-box"><div id="dateClock">--:--</div><div id="dateAlt">-- --, ----</div></div>
-    </div>
+    <div id="ytVideo"></div>
+
+    <button id="muteButton">
+      <i class="fa-solid fa-volume-xmark"></i>
+    </button>
+
   </div>
 
+  <!-- RIGHT SIDE -->
   <div class="right">
+
     <img src="logo.png" alt="City Clinic Logo">
-    <div class="token-label">Now serving</div>
-    <div class="token-number" id="tokenNumber">--</div>
-    <div class="token-text">Number</div>
+
+    <div class="token-label">
+      Now serving
+    </div>
+
+    <div class="token-number" id="tokenNumber">
+      --
+    </div>
+
+    <div class="token-text">
+      Number
+    </div>
+
   </div>
+
 </div>
 
+<!-- HTML STATIC SCROLLING MESSAGE -->
 <div class="footer">
   <div class="scroll-text">
     😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
   </div>
 </div>
+
 
 <!-- YouTube Player API -->
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -206,316 +220,732 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+
 <!-- Floating Particle Script -->
 <script>
+
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
+
   let particles = [];
 
   function resizeCanvas() {
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
   }
+
   resizeCanvas();
+
   window.addEventListener('resize', resizeCanvas);
 
+
   function createParticles(count) {
+
     for (let i = 0; i < count; i++) {
+
       particles.push({
+
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
+
         radius: Math.random() * 3 + 4,
+
         speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5
+
       });
+
     }
+
   }
 
+
   function updateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
     for (let p of particles) {
+
       p.x += p.speedX;
       p.y += p.speedY;
 
-      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      if (p.x < 0 || p.x > canvas.width)
+        p.speedX *= -1;
+
+      if (p.y < 0 || p.y > canvas.height)
+        p.speedY *= -1;
 
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+
+      ctx.arc(
+        p.x,
+        p.y,
+        p.radius,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fillStyle =
+        'rgba(255, 255, 255, 0.3)';
+
       ctx.fill();
+
     }
+
     requestAnimationFrame(updateParticles);
+
   }
+
 
   createParticles(100);
   updateParticles();
+
 </script>
+
 
 <!-- Firebase & YouTube Script -->
 <script>
-  // Firebase Initialization
+
+  /* =========================
+     FIREBASE INITIALIZATION
+     ========================= */
+
   firebase.initializeApp({
+
     apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
-    authDomain: "cityclinictoken.firebaseapp.com",
-    databaseURL: "https://cityclinictoken-default-rtdb.firebaseio.com/",
-    projectId: "cityclinictoken",
-    storageBucket: "cityclinictoken.appspot.com",
-    messagingSenderId: "196394231581",
-    appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
+
+    authDomain:
+      "cityclinictoken.firebaseapp.com",
+
+    databaseURL:
+      "https://cityclinictoken-default-rtdb.firebaseio.com/",
+
+    projectId:
+      "cityclinictoken",
+
+    storageBucket:
+      "cityclinictoken.appspot.com",
+
+    messagingSenderId:
+      "196394231581",
+
+    appId:
+      "1:196394231581:web:08b59c5f22608a9246d6d5"
+
   });
+
+
   const database = firebase.database();
 
-  let player, playerReady = false;
-  const muteButton = document.getElementById('muteButton');
-  const tokenEl = document.getElementById('tokenNumber');
-  let lastToken = null, lastUpdate = null;
+
+  let player;
+  let playerReady = false;
+
+  const muteButton =
+    document.getElementById('muteButton');
+
+  const tokenEl =
+    document.getElementById('tokenNumber');
+
+
+  let lastToken = null;
+  let lastUpdate = null;
+
   let userInteracted = false;
+
   let currentLoadedUrl = "";
   let currentContentType = "VIDEO";
 
-  // Unlock audio after first user gesture
+
+  /* =========================
+     AUDIO UNLOCK
+     ========================= */
+
   function enableAudio() {
+
     if (!userInteracted) {
+
       userInteracted = true;
-      console.log("User interaction detected — audio allowed.");
-      database.ref("videoMute").once("value").then(snap => {
-        if (snap.val() === "UNMUTE" && playerReady) {
-          player.unMute();
-        }
-      });
+
+      console.log(
+        "User interaction detected — audio allowed."
+      );
+
+      database.ref("videoMute")
+        .once("value")
+        .then(snap => {
+
+          if (
+            snap.val() === "UNMUTE" &&
+            playerReady
+          ) {
+
+            player.unMute();
+
+          }
+
+        });
+
     }
+
   }
-  document.body.addEventListener("click", enableAudio);
-  document.body.addEventListener("touchstart", enableAudio);
 
-  // Manual mute toggle button
-  muteButton.addEventListener("click", () => {
-    database.ref("videoMute").once("value").then(snap => {
-      const newState = (snap.val() === "MUTE") ? "UNMUTE" : "MUTE";
-      database.ref("videoMute").set(newState);
-    });
-  });
 
-  // YouTube Parser
+  document.body.addEventListener(
+    "click",
+    enableAudio
+  );
+
+  document.body.addEventListener(
+    "touchstart",
+    enableAudio
+  );
+
+
+  /* =========================
+     MANUAL MUTE BUTTON
+     ========================= */
+
+  muteButton.addEventListener(
+    "click",
+    () => {
+
+      database.ref("videoMute")
+        .once("value")
+        .then(snap => {
+
+          const newState =
+            snap.val() === "MUTE"
+              ? "UNMUTE"
+              : "MUTE";
+
+          database.ref("videoMute")
+            .set(newState);
+
+        });
+
+    }
+  );
+
+
+  /* =========================
+     YOUTUBE URL PARSER
+     ========================= */
+
   function extractYouTubeData(url) {
+
     let videoId = "";
     let playlistId = "";
     let type = "VIDEO";
 
-    if (!url) return { type: "NONE" };
+    if (!url)
+      return { type: "NONE" };
+
 
     try {
-      const u = new URL(url.trim());
+
+      const u =
+        new URL(url.trim());
+
+
+      /* Playlist ID */
 
       if (u.searchParams.get("list")) {
-        playlistId = u.searchParams.get("list");
+
+        playlistId =
+          u.searchParams.get("list");
+
       }
+
+
+      /* Video ID */
 
       if (u.searchParams.get("v")) {
-        videoId = u.searchParams.get("v");
-      } else if (u.hostname.includes("youtu.be")) {
-        videoId = u.pathname.replace("/", "");
-      } else if (u.pathname.includes("/shorts/")) {
-        videoId = u.pathname.split("/shorts/")[1].split("/")[0];
-      } else if (u.pathname.includes("/live/")) {
-        videoId = u.pathname.split("/live/")[1].split("/")[0];
+
+        videoId =
+          u.searchParams.get("v");
+
       }
-    } catch (e) {
-      const cleanUrl = url.trim();
-      if (cleanUrl.startsWith("PL") || cleanUrl.startsWith("UU") || cleanUrl.startsWith("FL")) {
-        playlistId = cleanUrl;
-      } else {
-        videoId = cleanUrl;
+
+      else if (
+        u.hostname.includes("youtu.be")
+      ) {
+
+        videoId =
+          u.pathname
+            .replace("/", "")
+            .split("?")[0];
+
       }
+
+      else if (
+        u.pathname.includes("/shorts/")
+      ) {
+
+        videoId =
+          u.pathname
+            .split("/shorts/")[1]
+            .split("/")[0];
+
+      }
+
+      else if (
+        u.pathname.includes("/live/")
+      ) {
+
+        videoId =
+          u.pathname
+            .split("/live/")[1]
+            .split("/")[0];
+
+      }
+
     }
+
+    catch (e) {
+
+      const cleanUrl =
+        url.trim();
+
+      if (
+        cleanUrl.startsWith("PL") ||
+        cleanUrl.startsWith("UU") ||
+        cleanUrl.startsWith("FL")
+      ) {
+
+        playlistId = cleanUrl;
+
+      }
+
+      else {
+
+        videoId = cleanUrl;
+
+      }
+
+    }
+
 
     if (playlistId) {
+
       type = "PLAYLIST";
-    } else if (videoId) {
-      type = "VIDEO";
+
     }
 
-    return { type, videoId, playlistId };
+    else if (videoId) {
+
+      type = "VIDEO";
+
+    }
+
+
+    return {
+      type,
+      videoId,
+      playlistId
+    };
+
   }
 
-  // Load Content into active player instance
-  function loadContentIntoPlayer(yt) {
-    if (!playerReady || !player) return;
 
-    currentContentType = yt.type;
+  /* =========================
+     LOAD CONTENT
+     ========================= */
+
+  function loadContentIntoPlayer(yt) {
+
+    if (!playerReady || !player)
+      return;
+
+
+    currentContentType =
+      yt.type;
+
 
     if (yt.type === "PLAYLIST") {
-      player.setLoop(true); // Enable playlist loop
-      player.loadPlaylist({
-        listType: "playlist",
-        list: yt.playlistId,
-        index: 0
-      });
-    } else if (yt.type === "VIDEO") {
+
       player.setLoop(true);
-      player.loadVideoById({
-        videoId: yt.videoId
+
+      player.loadPlaylist({
+
+        listType: "playlist",
+
+        list: yt.playlistId,
+
+        index: 0
+
       });
+
     }
+
+    else if (yt.type === "VIDEO") {
+
+      player.setLoop(true);
+
+      player.loadVideoById({
+
+        videoId: yt.videoId
+
+      });
+
+    }
+
   }
 
-  // YouTube API Ready Handler
+
+  /* =========================
+     YOUTUBE API READY
+     ========================= */
+
   function onYouTubeIframeAPIReady() {
-    player = new YT.Player("ytVideo", {
-      width: "100%",
-      height: "100%",
-      videoId: "M7lc1UVf-VE", // Reliable placeholder video
-      playerVars: {
-        autoplay: 1,
-        controls: 0,
-        mute: 1,
-        rel: 0,
-        modestbranding: 1,
-        playsinline: 1,
-        loop: 1
-      },
-      events: {
-        onReady: function () {
-          playerReady = true;
 
-          // Sync initial URL from Firebase once ready
-          database.ref("youtubeURL").once("value").then((snapshot) => {
-            const url = snapshot.val();
-            if (url) {
-              currentLoadedUrl = url;
-              const yt = extractYouTubeData(url);
-              loadContentIntoPlayer(yt);
-            }
-          });
+    player = new YT.Player(
+      "ytVideo",
+      {
+
+        width: "100%",
+        height: "100%",
+
+        videoId: "M7lc1UVf-VE",
+
+        playerVars: {
+
+          autoplay: 1,
+          controls: 0,
+          mute: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          loop: 1
+
         },
-        onStateChange: function (event) {
-          // Trigger when video or playlist ends (YT.PlayerState.ENDED = 0)
-          if (event.data === YT.PlayerState.ENDED) {
-            if (currentContentType === "PLAYLIST") {
-              player.playVideoAt(0); // Restart playlist from first video
-            } else {
-              player.playVideo(); // Restart single video/live replay
+
+
+        events: {
+
+          onReady: function () {
+
+            playerReady = true;
+
+
+            database
+              .ref("youtubeURL")
+              .once("value")
+              .then(snapshot => {
+
+                const url =
+                  snapshot.val();
+
+                if (url) {
+
+                  currentLoadedUrl =
+                    url;
+
+                  const yt =
+                    extractYouTubeData(url);
+
+                  loadContentIntoPlayer(yt);
+
+                }
+
+              });
+
+          },
+
+
+          onStateChange:
+            function (event) {
+
+              if (
+                event.data ===
+                YT.PlayerState.ENDED
+              ) {
+
+                if (
+                  currentContentType ===
+                  "PLAYLIST"
+                ) {
+
+                  player.playVideoAt(0);
+
+                }
+
+                else {
+
+                  player.playVideo();
+
+                }
+
+              }
+
             }
-          }
+
         }
-      }
-    });
 
-    // Real-time Firebase listener for URL changes
-    database.ref("youtubeURL").on("value", (snapshot) => {
-      const url = snapshot.val();
-      if (!url || url === currentLoadedUrl) return;
-
-      currentLoadedUrl = url;
-      const yt = extractYouTubeData(url);
-      if (playerReady) {
-        loadContentIntoPlayer(yt);
       }
-    });
+    );
+
+
+    /* Firebase YouTube URL listener */
+
+    database
+      .ref("youtubeURL")
+      .on("value", snapshot => {
+
+        const url =
+          snapshot.val();
+
+        if (
+          !url ||
+          url === currentLoadedUrl
+        )
+          return;
+
+
+        currentLoadedUrl =
+          url;
+
+
+        const yt =
+          extractYouTubeData(url);
+
+
+        if (playerReady) {
+
+          loadContentIntoPlayer(yt);
+
+        }
+
+      });
+
   }
 
-  // Firebase Mute/Unmute State Listener
-  database.ref("videoMute").on("value", (snapshot) => {
-    const muteState = snapshot.val();
-    if (playerReady && player.mute) {
-      if (muteState === "MUTE") {
-        player.mute();
-        muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-      } else if (muteState === "UNMUTE" && userInteracted) {
-        player.unMute();
-        player.setVolume(35);
-        muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+
+  /* =========================
+     MUTE / UNMUTE
+     ========================= */
+
+  database
+    .ref("videoMute")
+    .on("value", snapshot => {
+
+      const muteState =
+        snapshot.val();
+
+
+      if (
+        playerReady &&
+        player.mute
+      ) {
+
+        if (
+          muteState === "MUTE"
+        ) {
+
+          player.mute();
+
+          muteButton.innerHTML =
+            '<i class="fa-solid fa-volume-xmark"></i>';
+
+        }
+
+        else if (
+          muteState === "UNMUTE" &&
+          userInteracted
+        ) {
+
+          player.unMute();
+
+          player.setVolume(35);
+
+          muteButton.innerHTML =
+            '<i class="fa-solid fa-volume-high"></i>';
+
+        }
+
       }
-    }
-  });
 
-  // Firebase Play/Pause State Listener
-  database.ref("videoPlay").on("value", (snapshot) => {
-    const playState = snapshot.val();
-    if (playerReady && player.playVideo) {
-      if (playState === "PLAY") {
-        player.playVideo();
-      } else if (playState === "PAUSE") {
-        player.pauseVideo();
+    });
+
+
+  /* =========================
+     PLAY / PAUSE
+     ========================= */
+
+  database
+    .ref("videoPlay")
+    .on("value", snapshot => {
+
+      const playState =
+        snapshot.val();
+
+
+      if (
+        playerReady &&
+        player.playVideo
+      ) {
+
+        if (
+          playState === "PLAY"
+        ) {
+
+          player.playVideo();
+
+        }
+
+        else if (
+          playState === "PAUSE"
+        ) {
+
+          player.pauseVideo();
+
+        }
+
       }
-    }
-  });
 
-  // Firebase Volume Level Listener (0–100)
-  database.ref("videoVolume").on("value", (snapshot) => {
-    const vol = parseInt(snapshot.val(), 10);
-    if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100 && player.setVolume) {
-      player.setVolume(vol);
-    }
-  });
+    });
 
-  // Firebase Token Announcement Listener
+
+  /* =========================
+     VOLUME
+     ========================= */
+
+  database
+    .ref("videoVolume")
+    .on("value", snapshot => {
+
+      const vol =
+        parseInt(
+          snapshot.val(),
+          10
+        );
+
+
+      if (
+        playerReady &&
+        !isNaN(vol) &&
+        vol >= 0 &&
+        vol <= 100 &&
+        player.setVolume
+      ) {
+
+        player.setVolume(vol);
+
+      }
+
+    });
+
+
+  /* =========================
+     TOKEN ANNOUNCEMENT
+     ========================= */
+
   let previousVolume = 30;
 
-  database.ref('currentToken').on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      const newToken = data.token || '--';
-      const updatedAt = data.updatedAt || 0;
 
-      if (lastToken !== newToken || lastUpdate !== updatedAt) {
-        lastToken = newToken;
-        lastUpdate = updatedAt;
+  database
+    .ref('currentToken')
+    .on('value', snapshot => {
 
-        if (playerReady && player.getVolume) {
-          const currentVol = player.getVolume();
-          previousVolume = currentVol > 0 ? currentVol : previousVolume;
-          player.setVolume(5);
-        }
+      const data =
+        snapshot.val();
 
-        if (userInteracted) {
-          new Audio("bell.mp3").play();
-          new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
-        }
 
-        setTimeout(() => {
-          if (playerReady && player.setVolume) {
-            player.setVolume(previousVolume);
+      if (data) {
+
+        const newToken =
+          data.token || '--';
+
+        const updatedAt =
+          data.updatedAt || 0;
+
+
+        if (
+          lastToken !== newToken ||
+          lastUpdate !== updatedAt
+        ) {
+
+          lastToken =
+            newToken;
+
+          lastUpdate =
+            updatedAt;
+
+
+          if (
+            playerReady &&
+            player.getVolume
+          ) {
+
+            const currentVol =
+              player.getVolume();
+
+            previousVolume =
+              currentVol > 0
+                ? currentVol
+                : previousVolume;
+
+            player.setVolume(5);
+
           }
-        }, 5000);
 
-        tokenEl.classList.remove('blink');
-        void tokenEl.offsetWidth;
-        tokenEl.classList.add('blink');
+
+          if (userInteracted) {
+
+            new Audio(
+              "bell.mp3"
+            ).play();
+
+            new Audio(
+              `https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`
+            ).play();
+
+          }
+
+
+          setTimeout(() => {
+
+            if (
+              playerReady &&
+              player.setVolume
+            ) {
+
+              player.setVolume(
+                previousVolume
+              );
+
+            }
+
+          }, 5000);
+
+
+          tokenEl.classList.remove(
+            'blink'
+          );
+
+          void tokenEl.offsetWidth;
+
+          tokenEl.classList.add(
+            'blink'
+          );
+
+        }
+
+
+        tokenEl.textContent =
+          newToken;
+
       }
 
-      tokenEl.textContent = newToken;
-    }
-  });
+    });
 
-  // Clock
-  function updateTime() {
-    const now = new Date();
-    const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-    const dateAlt = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    document.getElementById("dateClock").textContent = time;
-    document.getElementById("dateAlt").textContent = dateAlt;
-  }
-  setInterval(updateTime, 1000);
-  updateTime();
-
-  // Weather Widget
-  const apiKey = 'ece698c5756c98857c463ddc98000798';
-  const city = 'Kanavalli';
-  async function fetchWeather() {
-    try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
-      const data = await res.json();
-      document.getElementById("temperature").textContent = `${data.main.temp.toFixed(1)}°C`;
-      document.getElementById("wind").textContent = `${data.wind.speed.toFixed(1)} km/h`;
-    } catch {
-      document.getElementById("temperature").textContent = `--°C`;
-      document.getElementById("wind").textContent = `-- km/h`;
-    }
-  }
-  fetchWeather();
-  setInterval(fetchWeather, 600000);
 </script>
 
 </body>
