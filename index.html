@@ -77,10 +77,10 @@
       border: none;
     }
 
-    /* Scroll message */
+    /* Scroll message: 2x height of footer (58px * 2 = 116px) with identical styling */
     .info-row {
-      height: 115px;
-      flex: 0 0 115px;
+      height: 116px;
+      flex: 0 0 116px;
       display: flex;
       width: 100%;
     }
@@ -89,11 +89,14 @@
       width: 100%;
       flex: 1;
       min-width: 0;
-      background: rgba(237, 23, 23, 0.05);
-      border: 3px solid rgba(229, 0, 0, 0.05);
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 2px solid black;
+      border-bottom: 2px solid black;
+      color: #ffffff;
       overflow: hidden;
       display: flex;
       align-items: center;
+      white-space: nowrap;
     }
 
     .firebase-scroll-wrap {
@@ -105,14 +108,9 @@
     .firebase-scroll-text {
       display: inline-block;
       padding-left: 100%;
-      font-size: clamp(24px, 2.5vw, 42px);
-      font-weight: 700;
-      animation: firebaseScroll 25s linear infinite;
-    }
-
-    @keyframes firebaseScroll {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
+      font-size: clamp(28px, 3vw, 48px);
+      font-weight: 500;
+      animation: scroll-left 30s linear infinite;
     }
 
     /* RIGHT 30% */
@@ -173,7 +171,7 @@
       50% { opacity: 0; }
     }
 
-    /* Bottom existing HTML scrolling message */
+    /* Bottom static scrolling message */
     .footer {
       position: fixed;
       left: 0;
@@ -220,8 +218,8 @@
 
     @media (max-width: 900px) {
       .info-row {
-        height: 90px;
-        flex-basis: 90px;
+        height: 100px;
+        flex-basis: 100px;
       }
 
       .message-box {
@@ -241,19 +239,16 @@
 
 <body>
 
-  <!-- Particle Canvas -->
   <canvas id="particles"></canvas>
 
   <div class="container">
 
-    <!-- LEFT SIDE -->
     <div class="left">
 
       <div id="ytVideo"></div>
 
       <div class="info-row">
 
-        <!-- FIREBASE SCROLL MESSAGE -->
         <div class="message-box">
           <div class="firebase-scroll-wrap">
             <div class="firebase-scroll-text" id="scrollMessage">
@@ -270,7 +265,6 @@
 
     </div>
 
-    <!-- RIGHT SIDE -->
     <div class="right">
 
       <img src="logo.png" alt="City Clinic Logo">
@@ -291,21 +285,17 @@
 
   </div>
 
-  <!-- HTML STATIC SCROLLING MESSAGE -->
   <div class="footer">
     <div class="scroll-text">
       😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
     </div>
   </div>
 
-  <!-- YouTube Player API -->
   <script src="https://www.youtube.com/iframe_api"></script>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- Floating Particle Script -->
   <script>
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
@@ -355,7 +345,6 @@
     updateParticles();
   </script>
 
-  <!-- Firebase & YouTube Script -->
   <script>
     /* =========================
        FIREBASE INITIALIZATION
@@ -389,10 +378,10 @@
         scrollMessageEl.textContent = "Welcome to City Clinic";
       }
 
-      // Restart animation whenever Excel/Firebase changes the message
+      // Restart animation using matching scroll-left keyframes
       scrollMessageEl.style.animation = "none";
       void scrollMessageEl.offsetWidth;
-      scrollMessageEl.style.animation = "";
+      scrollMessageEl.style.animation = "scroll-left 30s linear infinite";
     });
 
     /* =========================
