@@ -77,25 +77,7 @@
       border: none;
     }
 
-    /* Blue video caption strip */
-    .video-caption {
-      height: 42px;
-      flex: 0 0 42px;
-      background: #1010e8;
-      color: #ffe600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 12px;
-      font-size: clamp(18px, 2.1vw, 34px);
-      font-weight: 900;
-      font-style: italic;
-      text-shadow: 2px 2px 2px #000;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-
-    /* Yellow time/date + red Firebase message */
+    /* Scroll message */
     .info-row {
       height: 115px;
       flex: 0 0 115px;
@@ -103,36 +85,12 @@
       width: 100%;
     }
 
-    .date-time-box {
-      width: 165px;
-      flex: 0 0 165px;
-      background: #ffe000;
-      color: #111;
-      border: 3px solid #e50000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 1.1;
-      font-weight: 800;
-    }
-
-    #currentTime {
-      font-size: clamp(24px, 2.3vw, 36px);
-    }
-
-    #currentDate {
-      margin-top: 8px;
-      font-size: clamp(19px, 1.8vw, 29px);
-    }
-
     .message-box {
+      width: 100%;
       flex: 1;
       min-width: 0;
-      background: #ed1717;
-      border: 3px solid #e50000;
-      border-left: 0;
+      background: rgba(237, 23, 23, 0.05);
+      border: 3px solid rgba(229, 0, 0, 0.05);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -261,19 +219,13 @@
     }
 
     @media (max-width: 900px) {
-      .date-time-box {
-        width: 125px;
-        flex-basis: 125px;
-      }
-
       .info-row {
         height: 90px;
         flex-basis: 90px;
       }
 
-      .video-caption {
-        height: 32px;
-        flex-basis: 32px;
+      .message-box {
+        width: 100%;
       }
 
       .right {
@@ -299,19 +251,9 @@
 
       <div id="ytVideo"></div>
 
-      <div class="video-caption">
-        Annual Fest 2024–25 | National Convent School
-      </div>
-
       <div class="info-row">
 
-        <!-- YELLOW TIME + DATE -->
-        <div class="date-time-box">
-          <div id="currentTime">--:-- --</div>
-          <div id="currentDate">---</div>
-        </div>
-
-        <!-- RED FIREBASE SCROLL MESSAGE -->
+        <!-- FIREBASE SCROLL MESSAGE -->
         <div class="message-box">
           <div class="firebase-scroll-wrap">
             <div class="firebase-scroll-text" id="scrollMessage">
@@ -430,31 +372,6 @@
     });
 
     const database = firebase.database();
-
-    /* =========================
-       LIVE TIME + DATE
-       ========================= */
-
-    function updateDateTime() {
-      const now = new Date();
-
-      document.getElementById("currentTime").textContent =
-        now.toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true
-        });
-
-      document.getElementById("currentDate").textContent =
-        now.toLocaleDateString("en-IN", {
-          day: "numeric",
-          month: "short",
-          year: "numeric"
-        });
-    }
-
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
 
     /* =========================
        FIREBASE SCROLL MESSAGE
