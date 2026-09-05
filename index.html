@@ -4,15 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>City Clinic Token Display</title>
-
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     html, body {
       height: 100%;
       margin: 0;
@@ -22,13 +16,14 @@
     body {
       font-family: 'Segoe UI', sans-serif;
       color: white;
-      background: #111;
     }
 
     body::before {
       content: "";
       position: fixed;
-      inset: 0;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
       background: linear-gradient(-45deg, #53d0d2, #128f91, #2e3c77, #3e629b);
       background-size: 400% 400%;
       animation: gradientFlow 30s ease infinite;
@@ -36,175 +31,45 @@
     }
 
     @keyframes gradientFlow {
-      0%   { background-position: 0% 50%; }
-      50%  { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
 
     #particles {
       position: fixed;
-      inset: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       z-index: -2;
       pointer-events: none;
     }
 
-    /* Main screen */
     .container {
       display: flex;
+      height: calc(100% - 50px);
       width: 100vw;
-      height: calc(100vh - 58px);
-      min-height: 0;
     }
 
-    /* LEFT 70% */
     .left {
       position: relative;
-      width: 70%;
-      height: 100%;
+      width: 68.6%;
       display: flex;
       flex-direction: column;
-      min-width: 0;
-      min-height: 0;
-      background: #000;
+      justify-content: space-between;
     }
 
     #ytVideo {
       flex: 1;
       width: 100%;
-      min-height: 0;
       border: none;
+      border-bottom-right-radius: 20px;
     }
 
-    /* Scroll message: 2x height of footer (58px * 2 = 116px) with identical styling */
-    .info-row {
-      height: 116px;
-      flex: 0 0 116px;
-      display: flex;
-      width: 100%;
-    }
-
-    .message-box {
-      width: 100%;
-      flex: 1;
-      min-width: 0;
-      background: rgba(0, 0, 0, 0.25);
-      border-top: 2px solid black;
-      border-bottom: 2px solid black;
-      color: #ffffff;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
-    }
-
-    .firebase-scroll-wrap {
-      width: 100%;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .firebase-scroll-text {
-      display: inline-block;
-      padding-left: 100%;
-      font-size: clamp(28px, 3vw, 48px);
-      font-weight: 500;
-      animation: scroll-left 30s linear infinite;
-    }
-
-    /* RIGHT 30% */
-    .right {
-      width: 30%;
-      height: 100%;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 150, 150, 0.35);
-      overflow: hidden;
-      padding-top: 120px;
-    }
-
-    .right img {
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(250px, 80%);
-      max-height: 220px;
-      object-fit: contain;
-      z-index: 3;
-    }
-
-    .token-label {
-      font-size: clamp(30px, 4vw, 70px);
-      margin: 0;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .token-number {
-      font-size: clamp(120px, 16vw, 280px);
-      line-height: 0.95;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 15px #00ffff;
-      margin: 35px 0 35px;
-      white-space: nowrap;
-    }
-
-    .token-number.blink {
-      animation: blink 0.6s ease-in-out 3;
-    }
-
-    .token-text {
-      font-size: clamp(30px, 4vw, 70px);
-      margin: 0;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    /* Bottom static scrolling message */
-    .footer {
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 58px;
-      background: rgba(0, 0, 0, 0.25);
-      color: #ffffff;
-      font-size: clamp(22px, 2.2vw, 36px);
-      overflow: hidden;
-      white-space: nowrap;
-      border-top: 2px solid black;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-    }
-
-    .scroll-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 30s linear infinite;
-    }
-
-    @keyframes scroll-left {
-      0%   { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* Mute button */
     #muteButton {
       position: fixed;
-      bottom: 72px;
-      right: 22px;
+      bottom: 60px;
+      right: 30px;
       width: 60px;
       height: 60px;
       border-radius: 50%;
@@ -216,477 +81,442 @@
       z-index: 10;
     }
 
-    @media (max-width: 900px) {
-      .info-row {
-        height: 100px;
-        flex-basis: 100px;
-      }
+    .info-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      gap: 180px;
+      color: #fff;
+      padding: 20px;
+      z-index: 2;
+    }
 
-      .message-box {
-        width: 100%;
-      }
+    .info-box {
+      width: 200px;
+      text-align: center;
+    }
 
-      .right {
-        padding-top: 90px;
-      }
+    .right {
+      width: 31.4%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 200px;
+    }
 
-      .right img {
-        width: 180px;
-      }
+    .right img {
+      position: absolute;
+      top: 5px;
+      width: 250px;
+      z-index: 3;
+    }
+
+    .token-label {
+      font-size: 70px;
+      margin-bottom: 0.3em;
+      font-weight: 500;
+      padding-top: 50px;
+    }
+
+    .token-number {
+      font-size: 280px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 15px #00ffff;
+      margin-bottom: 20px;
+    }
+
+    .token-number.blink {
+      animation: blink 0.6s ease-in-out 3;
+    }
+
+    .token-text { 
+      font-size: 70px;
+      margin-bottom: 0.3em;
+      font-weight: 500;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      color: #ffffff;
+      font-size: 36px;
+      overflow: hidden;
+      white-space: nowrap;
+      border-top: 2px solid black;
+      z-index: 2;
+    }
+
+    .scroll-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 30s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
     }
   </style>
 </head>
-
 <body>
 
-  <canvas id="particles"></canvas>
+<!-- Particle Canvas -->
+<canvas id="particles"></canvas>
 
-  <div class="container">
+<div class="container">
+  <div class="left">
+    <div id="ytVideo"></div> <!-- YouTube IFrame will render here -->
+    <button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
 
-    <div class="left">
-
-      <div id="ytVideo"></div>
-
-      <div class="info-row">
-
-        <div class="message-box">
-          <div class="firebase-scroll-wrap">
-            <div class="firebase-scroll-text" id="scrollMessage">
-              Welcome to City Clinic
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <button id="muteButton">
-        <i class="fa-solid fa-volume-xmark"></i>
-      </button>
-
-    </div>
-
-    <div class="right">
-
-      <img src="logo.png" alt="City Clinic Logo">
-
-      <div class="token-label">
-        Now serving
-      </div>
-
-      <div class="token-number" id="tokenNumber">
-        --
-      </div>
-
-      <div class="token-text">
-        Number
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="footer">
-    <div class="scroll-text">
-      😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
+    <div class="info-row">
+      <div class="info-box"><div>🌡️</div><div id="temperature">--°C</div></div>
+      <div class="info-box"><div>💨</div><div id="wind">-- km/h</div></div>
+      <div class="info-box"><div id="dateClock">--:--</div><div id="dateAlt">-- --, ----</div></div>
     </div>
   </div>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
+  <div class="right">
+    <img src="logo.png" alt="City Clinic Logo">
+    <div class="token-label">Now serving</div>
+    <div class="token-number" id="tokenNumber">--</div>
+    <div class="token-text">Number</div>
+  </div>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<div class="footer">
+  <div class="scroll-text">
+    😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
+  </div>
+</div>
 
-  <script>
-    const canvas = document.getElementById('particles');
-    const ctx = canvas.getContext('2d');
+<!-- YouTube Player API -->
+<script src="https://www.youtube.com/iframe_api"></script>
 
-    let particles = [];
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+<!-- Floating Particle Script -->
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function createParticles(count) {
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 3 + 4,
+        speedX: (Math.random() - 0.5) * 0.5,
+        speedY: (Math.random() - 0.5) * 0.5,
+      });
     }
+  }
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+  function updateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let p of particles) {
+      p.x += p.speedX;
+      p.y += p.speedY;
 
-    function createParticles(count) {
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          radius: Math.random() * 3 + 4,
-          speedX: (Math.random() - 0.5) * 0.5,
-          speedY: (Math.random() - 0.5) * 0.5
-        });
-      }
+      if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.fill();
     }
+    requestAnimationFrame(updateParticles);
+  }
 
-    function updateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  createParticles(100);
+  updateParticles();
+</script>
 
-      for (let p of particles) {
-        p.x += p.speedX;
-        p.y += p.speedY;
+<!-- Firebase & YouTube Script -->
+<script>
+  // Firebase Initialization
+  firebase.initializeApp({
+    apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
+    authDomain: "cityclinictoken.firebaseapp.com",
+    databaseURL: "https://cityclinictoken-default-rtdb.firebaseio.com/",
+    projectId: "cityclinictoken",
+    storageBucket: "cityclinictoken.appspot.com",
+    messagingSenderId: "196394231581",
+    appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
+  });
+  const database = firebase.database();
 
-        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+  let player, playerReady = false;
+  const muteButton = document.getElementById('muteButton');
+  const tokenEl = document.getElementById('tokenNumber');
+  let lastToken = null, lastUpdate = null;
+  let userInteracted = false;
+  let currentLoadedUrl = "";
+  let currentContentType = "VIDEO";
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fill();
-      }
-
-      requestAnimationFrame(updateParticles);
-    }
-
-    createParticles(100);
-    updateParticles();
-  </script>
-
-  <script>
-    /* =========================
-       FIREBASE INITIALIZATION
-       ========================= */
-
-    firebase.initializeApp({
-      apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
-      authDomain: "cityclinictoken.firebaseapp.com",
-      databaseURL: "https://cityclinictoken-default-rtdb.firebaseio.com/",
-      projectId: "cityclinictoken",
-      storageBucket: "cityclinictoken.appspot.com",
-      messagingSenderId: "196394231581",
-      appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
-    });
-
-    const database = firebase.database();
-
-    /* =========================
-       FIREBASE SCROLL MESSAGE
-       ========================= */
-
-    const scrollMessageEl =
-      document.getElementById("scrollMessage");
-
-    database.ref("scrollMessage").on("value", snapshot => {
-      const message = snapshot.val();
-
-      if (message !== null && message !== undefined && String(message).trim() !== "") {
-        scrollMessageEl.textContent = String(message);
-      } else {
-        scrollMessageEl.textContent = "Welcome to City Clinic";
-      }
-
-      // Restart animation using matching scroll-left keyframes
-      scrollMessageEl.style.animation = "none";
-      void scrollMessageEl.offsetWidth;
-      scrollMessageEl.style.animation = "scroll-left 30s linear infinite";
-    });
-
-    /* =========================
-       YOUTUBE / TOKEN VARIABLES
-       ========================= */
-
-    let player;
-    let playerReady = false;
-
-    const muteButton = document.getElementById('muteButton');
-    const tokenEl = document.getElementById('tokenNumber');
-
-    let lastToken = null;
-    let lastUpdate = null;
-    let userInteracted = false;
-    let currentLoadedUrl = "";
-    let currentContentType = "VIDEO";
-
-    /* =========================
-       AUDIO UNLOCK
-       ========================= */
-
-    function enableAudio() {
-      if (!userInteracted) {
-        userInteracted = true;
-
-        database.ref("videoMute").once("value").then(snap => {
-          if (snap.val() === "UNMUTE" && playerReady) {
-            player.unMute();
-          }
-        });
-      }
-    }
-
-    document.body.addEventListener("click", enableAudio);
-    document.body.addEventListener("touchstart", enableAudio);
-
-    /* =========================
-       MANUAL MUTE BUTTON
-       ========================= */
-
-    muteButton.addEventListener("click", () => {
+  // Unlock audio after first user gesture
+  function enableAudio() {
+    if (!userInteracted) {
+      userInteracted = true;
+      console.log("User interaction detected — audio allowed.");
       database.ref("videoMute").once("value").then(snap => {
-        const newState =
-          snap.val() === "MUTE" ? "UNMUTE" : "MUTE";
-
-        database.ref("videoMute").set(newState);
-      });
-    });
-
-    /* =========================
-       YOUTUBE URL PARSER
-       ========================= */
-
-    function extractYouTubeData(url) {
-      let videoId = "";
-      let playlistId = "";
-      let type = "VIDEO";
-
-      if (!url) return { type: "NONE" };
-
-      try {
-        const u = new URL(url.trim());
-
-        if (u.searchParams.get("list")) {
-          playlistId = u.searchParams.get("list");
-        }
-
-        if (u.searchParams.get("v")) {
-          videoId = u.searchParams.get("v");
-        }
-        else if (u.hostname.includes("youtu.be")) {
-          videoId = u.pathname.replace("/", "").split("?")[0];
-        }
-        else if (u.pathname.includes("/shorts/")) {
-          videoId = u.pathname.split("/shorts/")[1].split("/")[0];
-        }
-        else if (u.pathname.includes("/live/")) {
-          videoId = u.pathname.split("/live/")[1].split("/")[0];
-        }
-
-      } catch (e) {
-        const cleanUrl = url.trim();
-
-        if (
-          cleanUrl.startsWith("PL") ||
-          cleanUrl.startsWith("UU") ||
-          cleanUrl.startsWith("FL")
-        ) {
-          playlistId = cleanUrl;
-        } else {
-          videoId = cleanUrl;
-        }
-      }
-
-      if (playlistId) type = "PLAYLIST";
-      else if (videoId) type = "VIDEO";
-
-      return {
-        type,
-        videoId,
-        playlistId
-      };
-    }
-
-    /* =========================
-       LOAD CONTENT
-       ========================= */
-
-    function loadContentIntoPlayer(yt) {
-      if (!playerReady || !player) return;
-
-      currentContentType = yt.type;
-
-      if (yt.type === "PLAYLIST") {
-        player.setLoop(true);
-
-        player.loadPlaylist({
-          listType: "playlist",
-          list: yt.playlistId,
-          index: 0
-        });
-
-      } else if (yt.type === "VIDEO") {
-        player.setLoop(true);
-
-        player.loadVideoById({
-          videoId: yt.videoId
-        });
-      }
-    }
-
-    /* =========================
-       YOUTUBE API READY
-       ========================= */
-
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player("ytVideo", {
-        width: "100%",
-        height: "100%",
-        videoId: "M7lc1UVf-VE",
-
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          mute: 1,
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          loop: 1
-        },
-
-        events: {
-          onReady: function () {
-            playerReady = true;
-
-            database.ref("youtubeURL").once("value").then(snapshot => {
-              const url = snapshot.val();
-
-              if (url) {
-                currentLoadedUrl = url;
-                const yt = extractYouTubeData(url);
-                loadContentIntoPlayer(yt);
-              }
-            });
-          },
-
-          onStateChange: function (event) {
-            if (event.data === YT.PlayerState.ENDED) {
-              if (currentContentType === "PLAYLIST") {
-                player.playVideoAt(0);
-              } else {
-                player.playVideo();
-              }
-            }
-          }
-        }
-      });
-
-      /* Firebase YouTube URL listener */
-      database.ref("youtubeURL").on("value", snapshot => {
-        const url = snapshot.val();
-
-        if (!url || url === currentLoadedUrl) return;
-
-        currentLoadedUrl = url;
-
-        const yt = extractYouTubeData(url);
-
-        if (playerReady) {
-          loadContentIntoPlayer(yt);
-        }
-      });
-    }
-
-    /* =========================
-       MUTE / UNMUTE
-       ========================= */
-
-    database.ref("videoMute").on("value", snapshot => {
-      const muteState = snapshot.val();
-
-      if (playerReady && player.mute) {
-        if (muteState === "MUTE") {
-          player.mute();
-          muteButton.innerHTML =
-            '<i class="fa-solid fa-volume-xmark"></i>';
-        }
-        else if (muteState === "UNMUTE" && userInteracted) {
+        if (snap.val() === "UNMUTE" && playerReady) {
           player.unMute();
-          player.setVolume(35);
-
-          muteButton.innerHTML =
-            '<i class="fa-solid fa-volume-high"></i>';
         }
-      }
+      });
+    }
+  }
+  document.body.addEventListener("click", enableAudio);
+  document.body.addEventListener("touchstart", enableAudio);
+
+  // Manual mute toggle button
+  muteButton.addEventListener("click", () => {
+    database.ref("videoMute").once("value").then(snap => {
+      const newState = (snap.val() === "MUTE") ? "UNMUTE" : "MUTE";
+      database.ref("videoMute").set(newState);
     });
+  });
 
-    /* =========================
-       PLAY / PAUSE
-       ========================= */
+  // YouTube Parser
+  function extractYouTubeData(url) {
+    let videoId = "";
+    let playlistId = "";
+    let type = "VIDEO";
 
-    database.ref("videoPlay").on("value", snapshot => {
-      const playState = snapshot.val();
+    if (!url) return { type: "NONE" };
 
-      if (playerReady && player.playVideo) {
-        if (playState === "PLAY") {
-          player.playVideo();
-        }
-        else if (playState === "PAUSE") {
-          player.pauseVideo();
-        }
+    try {
+      const u = new URL(url.trim());
+
+      if (u.searchParams.get("list")) {
+        playlistId = u.searchParams.get("list");
       }
-    });
 
-    /* =========================
-       VOLUME
-       ========================= */
-
-    database.ref("videoVolume").on("value", snapshot => {
-      const vol = parseInt(snapshot.val(), 10);
-
-      if (
-        playerReady &&
-        !isNaN(vol) &&
-        vol >= 0 &&
-        vol <= 100 &&
-        player.setVolume
-      ) {
-        player.setVolume(vol);
+      if (u.searchParams.get("v")) {
+        videoId = u.searchParams.get("v");
+      } else if (u.hostname.includes("youtu.be")) {
+        videoId = u.pathname.replace("/", "");
+      } else if (u.pathname.includes("/shorts/")) {
+        videoId = u.pathname.split("/shorts/")[1].split("/")[0];
+      } else if (u.pathname.includes("/live/")) {
+        videoId = u.pathname.split("/live/")[1].split("/")[0];
       }
-    });
+    } catch (e) {
+      const cleanUrl = url.trim();
+      if (cleanUrl.startsWith("PL") || cleanUrl.startsWith("UU") || cleanUrl.startsWith("FL")) {
+        playlistId = cleanUrl;
+      } else {
+        videoId = cleanUrl;
+      }
+    }
 
-    /* =========================
-       TOKEN ANNOUNCEMENT
-       ========================= */
+    if (playlistId) {
+      type = "PLAYLIST";
+    } else if (videoId) {
+      type = "VIDEO";
+    }
 
-    let previousVolume = 30;
+    return { type, videoId, playlistId };
+  }
 
-    database.ref('currentToken').on('value', snapshot => {
-      const data = snapshot.val();
+  // Load Content into active player instance
+  function loadContentIntoPlayer(yt) {
+    if (!playerReady || !player) return;
 
-      if (data) {
-        const newToken = data.token || '--';
-        const updatedAt = data.updatedAt || 0;
+    currentContentType = yt.type;
 
-        if (
-          lastToken !== newToken ||
-          lastUpdate !== updatedAt
-        ) {
-          lastToken = newToken;
-          lastUpdate = updatedAt;
+    if (yt.type === "PLAYLIST") {
+      player.setLoop(true); // Enable playlist loop
+      player.loadPlaylist({
+        listType: "playlist",
+        list: yt.playlistId,
+        index: 0
+      });
+    } else if (yt.type === "VIDEO") {
+      player.setLoop(true);
+      player.loadVideoById({
+        videoId: yt.videoId
+      });
+    }
+  }
 
-          if (playerReady && player.getVolume) {
-            const currentVol = player.getVolume();
+  // YouTube API Ready Handler
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player("ytVideo", {
+      width: "100%",
+      height: "100%",
+      videoId: "M7lc1UVf-VE", // Reliable placeholder video
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        mute: 1,
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        loop: 1
+      },
+      events: {
+        onReady: function () {
+          playerReady = true;
 
-            previousVolume =
-              currentVol > 0 ? currentVol : previousVolume;
-
-            player.setVolume(5);
-          }
-
-          if (userInteracted) {
-            new Audio("bell.mp3").play();
-
-            new Audio(
-              `https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`
-            ).play();
-          }
-
-          setTimeout(() => {
-            if (playerReady && player.setVolume) {
-              player.setVolume(previousVolume);
+          // Sync initial URL from Firebase once ready
+          database.ref("youtubeURL").once("value").then((snapshot) => {
+            const url = snapshot.val();
+            if (url) {
+              currentLoadedUrl = url;
+              const yt = extractYouTubeData(url);
+              loadContentIntoPlayer(yt);
             }
-          }, 5000);
-
-          tokenEl.classList.remove('blink');
-          void tokenEl.offsetWidth;
-          tokenEl.classList.add('blink');
+          });
+        },
+        onStateChange: function (event) {
+          // Trigger when video or playlist ends (YT.PlayerState.ENDED = 0)
+          if (event.data === YT.PlayerState.ENDED) {
+            if (currentContentType === "PLAYLIST") {
+              player.playVideoAt(0); // Restart playlist from first video
+            } else {
+              player.playVideo(); // Restart single video/live replay
+            }
+          }
         }
-
-        tokenEl.textContent = newToken;
       }
     });
-  </script>
+
+    // Real-time Firebase listener for URL changes
+    database.ref("youtubeURL").on("value", (snapshot) => {
+      const url = snapshot.val();
+      if (!url || url === currentLoadedUrl) return;
+
+      currentLoadedUrl = url;
+      const yt = extractYouTubeData(url);
+      if (playerReady) {
+        loadContentIntoPlayer(yt);
+      }
+    });
+  }
+
+  // Firebase Mute/Unmute State Listener
+  database.ref("videoMute").on("value", (snapshot) => {
+    const muteState = snapshot.val();
+    if (playerReady && player.mute) {
+      if (muteState === "MUTE") {
+        player.mute();
+        muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+      } else if (muteState === "UNMUTE" && userInteracted) {
+        player.unMute();
+        player.setVolume(35);
+        muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+      }
+    }
+  });
+
+  // Firebase Play/Pause State Listener
+  database.ref("videoPlay").on("value", (snapshot) => {
+    const playState = snapshot.val();
+    if (playerReady && player.playVideo) {
+      if (playState === "PLAY") {
+        player.playVideo();
+      } else if (playState === "PAUSE") {
+        player.pauseVideo();
+      }
+    }
+  });
+
+  // Firebase Volume Level Listener (0–100)
+  database.ref("videoVolume").on("value", (snapshot) => {
+    const vol = parseInt(snapshot.val(), 10);
+    if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100 && player.setVolume) {
+      player.setVolume(vol);
+    }
+  });
+
+  // Firebase Token Announcement Listener
+  let previousVolume = 30;
+
+  database.ref('currentToken').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const newToken = data.token || '--';
+      const updatedAt = data.updatedAt || 0;
+
+      if (lastToken !== newToken || lastUpdate !== updatedAt) {
+        lastToken = newToken;
+        lastUpdate = updatedAt;
+
+        if (playerReady && player.getVolume) {
+          const currentVol = player.getVolume();
+          previousVolume = currentVol > 0 ? currentVol : previousVolume;
+          player.setVolume(5);
+        }
+
+        if (userInteracted) {
+          new Audio("bell.mp3").play();
+          new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
+        }
+
+        setTimeout(() => {
+          if (playerReady && player.setVolume) {
+            player.setVolume(previousVolume);
+          }
+        }, 5000);
+
+        tokenEl.classList.remove('blink');
+        void tokenEl.offsetWidth;
+        tokenEl.classList.add('blink');
+      }
+
+      tokenEl.textContent = newToken;
+    }
+  });
+
+  // Clock
+  function updateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const dateAlt = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById("dateClock").textContent = time;
+    document.getElementById("dateAlt").textContent = dateAlt;
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // Weather Widget
+  const apiKey = 'ece698c5756c98857c463ddc98000798';
+  const city = 'Kanavalli';
+  async function fetchWeather() {
+    try {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+      const data = await res.json();
+      document.getElementById("temperature").textContent = `${data.main.temp.toFixed(1)}°C`;
+      document.getElementById("wind").textContent = `${data.wind.speed.toFixed(1)} km/h`;
+    } catch {
+      document.getElementById("temperature").textContent = `--°C`;
+      document.getElementById("wind").textContent = `-- km/h`;
+    }
+  }
+  fetchWeather();
+  setInterval(fetchWeather, 600000);
+</script>
 
 </body>
 </html>
