@@ -9,6 +9,10 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       height: 100%;
       margin: 0;
@@ -18,15 +22,13 @@
     body {
       font-family: 'Segoe UI', sans-serif;
       color: white;
+      background: #111;
     }
 
     body::before {
       content: "";
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      inset: 0;
       background: linear-gradient(-45deg, #53d0d2, #128f91, #2e3c77, #3e629b);
       background-size: 400% 400%;
       animation: gradientFlow 30s ease infinite;
@@ -41,38 +43,212 @@
 
     #particles {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       z-index: -2;
       pointer-events: none;
     }
 
+    /* Main screen */
     .container {
       display: flex;
-      height: calc(100% - 50px);
       width: 100vw;
+      height: calc(100vh - 58px);
+      min-height: 0;
     }
 
+    /* LEFT 70% */
     .left {
       position: relative;
-      width: 68.6%;
+      width: 70%;
+      height: 100%;
       display: flex;
       flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      background: #000;
     }
 
     #ytVideo {
       flex: 1;
       width: 100%;
+      min-height: 0;
       border: none;
-      border-bottom-right-radius: 20px;
     }
 
+    /* Blue video caption strip */
+    .video-caption {
+      height: 42px;
+      flex: 0 0 42px;
+      background: #1010e8;
+      color: #ffe600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      font-size: clamp(18px, 2.1vw, 34px);
+      font-weight: 900;
+      font-style: italic;
+      text-shadow: 2px 2px 2px #000;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* Yellow time/date + red Firebase message */
+    .info-row {
+      height: 115px;
+      flex: 0 0 115px;
+      display: flex;
+      width: 100%;
+    }
+
+    .date-time-box {
+      width: 165px;
+      flex: 0 0 165px;
+      background: #ffe000;
+      color: #111;
+      border: 3px solid #e50000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+
+    #currentTime {
+      font-size: clamp(24px, 2.3vw, 36px);
+    }
+
+    #currentDate {
+      margin-top: 8px;
+      font-size: clamp(19px, 1.8vw, 29px);
+    }
+
+    .message-box {
+      flex: 1;
+      min-width: 0;
+      background: #ed1717;
+      border: 3px solid #e50000;
+      border-left: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .firebase-scroll-wrap {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .firebase-scroll-text {
+      display: inline-block;
+      padding-left: 100%;
+      font-size: clamp(24px, 2.5vw, 42px);
+      font-weight: 700;
+      animation: firebaseScroll 25s linear infinite;
+    }
+
+    @keyframes firebaseScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* RIGHT 30% */
+    .right {
+      width: 30%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 150, 150, 0.35);
+      overflow: hidden;
+      padding-top: 120px;
+    }
+
+    .right img {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(250px, 80%);
+      max-height: 220px;
+      object-fit: contain;
+      z-index: 3;
+    }
+
+    .token-label {
+      font-size: clamp(30px, 4vw, 70px);
+      margin: 0;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .token-number {
+      font-size: clamp(120px, 16vw, 280px);
+      line-height: 0.95;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 15px #00ffff;
+      margin: 35px 0 35px;
+      white-space: nowrap;
+    }
+
+    .token-number.blink {
+      animation: blink 0.6s ease-in-out 3;
+    }
+
+    .token-text {
+      font-size: clamp(30px, 4vw, 70px);
+      margin: 0;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Bottom existing HTML scrolling message */
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 58px;
+      background: rgba(0, 0, 0, 0.25);
+      color: #ffffff;
+      font-size: clamp(22px, 2.2vw, 36px);
+      overflow: hidden;
+      white-space: nowrap;
+      border-top: 2px solid black;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+    }
+
+    .scroll-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: scroll-left 30s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0%   { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Mute button */
     #muteButton {
       position: fixed;
-      bottom: 60px;
-      right: 30px;
+      bottom: 72px;
+      right: 22px;
       width: 60px;
       height: 60px;
       border-radius: 50%;
@@ -84,83 +260,28 @@
       z-index: 10;
     }
 
-    .right {
-      width: 31.4%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding-top: 200px;
-    }
-
-    .right img {
-      position: absolute;
-      top: 5px;
-      width: 250px;
-      z-index: 3;
-    }
-
-    .token-label {
-      font-size: 70px;
-      margin-bottom: 0.3em;
-      font-weight: 500;
-      padding-top: 50px;
-    }
-
-    .token-number {
-      font-size: 280px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 15px #00ffff;
-      margin-bottom: 20px;
-    }
-
-    .token-number.blink {
-      animation: blink 0.6s ease-in-out 3;
-    }
-
-    .token-text {
-      font-size: 70px;
-      margin-bottom: 0.3em;
-      font-weight: 500;
-    }
-
-    @keyframes blink {
-      0%, 100% {
-        opacity: 1;
+    @media (max-width: 900px) {
+      .date-time-box {
+        width: 125px;
+        flex-basis: 125px;
       }
 
-      50% {
-        opacity: 0;
-      }
-    }
-
-    .footer {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.2);
-      color: #ffffff;
-      font-size: 36px;
-      overflow: hidden;
-      white-space: nowrap;
-      border-top: 2px solid black;
-      z-index: 2;
-    }
-
-    .scroll-text {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scroll-left 30s linear infinite;
-    }
-
-    @keyframes scroll-left {
-      0% {
-        transform: translateX(0%);
+      .info-row {
+        height: 90px;
+        flex-basis: 90px;
       }
 
-      100% {
-        transform: translateX(-100%);
+      .video-caption {
+        height: 32px;
+        flex-basis: 32px;
+      }
+
+      .right {
+        padding-top: 90px;
+      }
+
+      .right img {
+        width: 180px;
       }
     }
   </style>
@@ -168,455 +289,336 @@
 
 <body>
 
-<!-- Particle Canvas -->
-<canvas id="particles"></canvas>
+  <!-- Particle Canvas -->
+  <canvas id="particles"></canvas>
 
-<div class="container">
+  <div class="container">
 
-  <!-- LEFT SIDE -->
-  <div class="left">
+    <!-- LEFT SIDE -->
+    <div class="left">
 
-    <div id="ytVideo"></div>
+      <div id="ytVideo"></div>
 
-    <button id="muteButton">
-      <i class="fa-solid fa-volume-xmark"></i>
-    </button>
+      <div class="video-caption">
+        Annual Fest 2024–25 | National Convent School
+      </div>
+
+      <div class="info-row">
+
+        <!-- YELLOW TIME + DATE -->
+        <div class="date-time-box">
+          <div id="currentTime">--:-- --</div>
+          <div id="currentDate">---</div>
+        </div>
+
+        <!-- RED FIREBASE SCROLL MESSAGE -->
+        <div class="message-box">
+          <div class="firebase-scroll-wrap">
+            <div class="firebase-scroll-text" id="scrollMessage">
+              Welcome to City Clinic
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <button id="muteButton">
+        <i class="fa-solid fa-volume-xmark"></i>
+      </button>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right">
+
+      <img src="logo.png" alt="City Clinic Logo">
+
+      <div class="token-label">
+        Now serving
+      </div>
+
+      <div class="token-number" id="tokenNumber">
+        --
+      </div>
+
+      <div class="token-text">
+        Number
+      </div>
+
+    </div>
 
   </div>
 
-  <!-- RIGHT SIDE -->
-  <div class="right">
-
-    <img src="logo.png" alt="City Clinic Logo">
-
-    <div class="token-label">
-      Now serving
+  <!-- HTML STATIC SCROLLING MESSAGE -->
+  <div class="footer">
+    <div class="scroll-text">
+      😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
     </div>
-
-    <div class="token-number" id="tokenNumber">
-      --
-    </div>
-
-    <div class="token-text">
-      Number
-    </div>
-
   </div>
 
-</div>
+  <!-- YouTube Player API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 
-<!-- HTML STATIC SCROLLING MESSAGE -->
-<div class="footer">
-  <div class="scroll-text">
-    😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
-  </div>
-</div>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+  <!-- Floating Particle Script -->
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
 
-<!-- YouTube Player API -->
-<script src="https://www.youtube.com/iframe_api"></script>
+    let particles = [];
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-
-<!-- Floating Particle Script -->
-<script>
-
-  const canvas = document.getElementById('particles');
-  const ctx = canvas.getContext('2d');
-
-  let particles = [];
-
-  function resizeCanvas() {
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-  }
-
-  resizeCanvas();
-
-  window.addEventListener('resize', resizeCanvas);
-
-
-  function createParticles(count) {
-
-    for (let i = 0; i < count; i++) {
-
-      particles.push({
-
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-
-        radius: Math.random() * 3 + 4,
-
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5
-
-      });
-
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
 
-  }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-
-  function updateParticles() {
-
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    for (let p of particles) {
-
-      p.x += p.speedX;
-      p.y += p.speedY;
-
-      if (p.x < 0 || p.x > canvas.width)
-        p.speedX *= -1;
-
-      if (p.y < 0 || p.y > canvas.height)
-        p.speedY *= -1;
-
-      ctx.beginPath();
-
-      ctx.arc(
-        p.x,
-        p.y,
-        p.radius,
-        0,
-        Math.PI * 2
-      );
-
-      ctx.fillStyle =
-        'rgba(255, 255, 255, 0.3)';
-
-      ctx.fill();
-
+    function createParticles(count) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 3 + 4,
+          speedX: (Math.random() - 0.5) * 0.5,
+          speedY: (Math.random() - 0.5) * 0.5
+        });
+      }
     }
 
-    requestAnimationFrame(updateParticles);
+    function updateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  }
+      for (let p of particles) {
+        p.x += p.speedX;
+        p.y += p.speedY;
 
+        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
 
-  createParticles(100);
-  updateParticles();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fill();
+      }
 
-</script>
+      requestAnimationFrame(updateParticles);
+    }
 
+    createParticles(100);
+    updateParticles();
+  </script>
 
-<!-- Firebase & YouTube Script -->
-<script>
+  <!-- Firebase & YouTube Script -->
+  <script>
+    /* =========================
+       FIREBASE INITIALIZATION
+       ========================= */
 
-  /* =========================
-     FIREBASE INITIALIZATION
-     ========================= */
+    firebase.initializeApp({
+      apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
+      authDomain: "cityclinictoken.firebaseapp.com",
+      databaseURL: "https://cityclinictoken-default-rtdb.firebaseio.com/",
+      projectId: "cityclinictoken",
+      storageBucket: "cityclinictoken.appspot.com",
+      messagingSenderId: "196394231581",
+      appId: "1:196394231581:web:08b59c5f22608a9246d6d5"
+    });
 
-  firebase.initializeApp({
+    const database = firebase.database();
 
-    apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
+    /* =========================
+       LIVE TIME + DATE
+       ========================= */
 
-    authDomain:
-      "cityclinictoken.firebaseapp.com",
+    function updateDateTime() {
+      const now = new Date();
 
-    databaseURL:
-      "https://cityclinictoken-default-rtdb.firebaseio.com/",
+      document.getElementById("currentTime").textContent =
+        now.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
 
-    projectId:
-      "cityclinictoken",
+      document.getElementById("currentDate").textContent =
+        now.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        });
+    }
 
-    storageBucket:
-      "cityclinictoken.appspot.com",
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
 
-    messagingSenderId:
-      "196394231581",
+    /* =========================
+       FIREBASE SCROLL MESSAGE
+       ========================= */
 
-    appId:
-      "1:196394231581:web:08b59c5f22608a9246d6d5"
+    const scrollMessageEl =
+      document.getElementById("scrollMessage");
 
-  });
+    database.ref("scrollMessage").on("value", snapshot => {
+      const message = snapshot.val();
 
+      if (message !== null && message !== undefined && String(message).trim() !== "") {
+        scrollMessageEl.textContent = String(message);
+      } else {
+        scrollMessageEl.textContent = "Welcome to City Clinic";
+      }
 
-  const database = firebase.database();
+      // Restart animation whenever Excel/Firebase changes the message
+      scrollMessageEl.style.animation = "none";
+      void scrollMessageEl.offsetWidth;
+      scrollMessageEl.style.animation = "";
+    });
 
+    /* =========================
+       YOUTUBE / TOKEN VARIABLES
+       ========================= */
 
-  let player;
-  let playerReady = false;
+    let player;
+    let playerReady = false;
 
-  const muteButton =
-    document.getElementById('muteButton');
+    const muteButton = document.getElementById('muteButton');
+    const tokenEl = document.getElementById('tokenNumber');
 
-  const tokenEl =
-    document.getElementById('tokenNumber');
+    let lastToken = null;
+    let lastUpdate = null;
+    let userInteracted = false;
+    let currentLoadedUrl = "";
+    let currentContentType = "VIDEO";
 
+    /* =========================
+       AUDIO UNLOCK
+       ========================= */
 
-  let lastToken = null;
-  let lastUpdate = null;
+    function enableAudio() {
+      if (!userInteracted) {
+        userInteracted = true;
 
-  let userInteracted = false;
-
-  let currentLoadedUrl = "";
-  let currentContentType = "VIDEO";
-
-
-  /* =========================
-     AUDIO UNLOCK
-     ========================= */
-
-  function enableAudio() {
-
-    if (!userInteracted) {
-
-      userInteracted = true;
-
-      console.log(
-        "User interaction detected — audio allowed."
-      );
-
-      database.ref("videoMute")
-        .once("value")
-        .then(snap => {
-
-          if (
-            snap.val() === "UNMUTE" &&
-            playerReady
-          ) {
-
+        database.ref("videoMute").once("value").then(snap => {
+          if (snap.val() === "UNMUTE" && playerReady) {
             player.unMute();
-
           }
+        });
+      }
+    }
 
+    document.body.addEventListener("click", enableAudio);
+    document.body.addEventListener("touchstart", enableAudio);
+
+    /* =========================
+       MANUAL MUTE BUTTON
+       ========================= */
+
+    muteButton.addEventListener("click", () => {
+      database.ref("videoMute").once("value").then(snap => {
+        const newState =
+          snap.val() === "MUTE" ? "UNMUTE" : "MUTE";
+
+        database.ref("videoMute").set(newState);
+      });
+    });
+
+    /* =========================
+       YOUTUBE URL PARSER
+       ========================= */
+
+    function extractYouTubeData(url) {
+      let videoId = "";
+      let playlistId = "";
+      let type = "VIDEO";
+
+      if (!url) return { type: "NONE" };
+
+      try {
+        const u = new URL(url.trim());
+
+        if (u.searchParams.get("list")) {
+          playlistId = u.searchParams.get("list");
+        }
+
+        if (u.searchParams.get("v")) {
+          videoId = u.searchParams.get("v");
+        }
+        else if (u.hostname.includes("youtu.be")) {
+          videoId = u.pathname.replace("/", "").split("?")[0];
+        }
+        else if (u.pathname.includes("/shorts/")) {
+          videoId = u.pathname.split("/shorts/")[1].split("/")[0];
+        }
+        else if (u.pathname.includes("/live/")) {
+          videoId = u.pathname.split("/live/")[1].split("/")[0];
+        }
+
+      } catch (e) {
+        const cleanUrl = url.trim();
+
+        if (
+          cleanUrl.startsWith("PL") ||
+          cleanUrl.startsWith("UU") ||
+          cleanUrl.startsWith("FL")
+        ) {
+          playlistId = cleanUrl;
+        } else {
+          videoId = cleanUrl;
+        }
+      }
+
+      if (playlistId) type = "PLAYLIST";
+      else if (videoId) type = "VIDEO";
+
+      return {
+        type,
+        videoId,
+        playlistId
+      };
+    }
+
+    /* =========================
+       LOAD CONTENT
+       ========================= */
+
+    function loadContentIntoPlayer(yt) {
+      if (!playerReady || !player) return;
+
+      currentContentType = yt.type;
+
+      if (yt.type === "PLAYLIST") {
+        player.setLoop(true);
+
+        player.loadPlaylist({
+          listType: "playlist",
+          list: yt.playlistId,
+          index: 0
         });
 
-    }
+      } else if (yt.type === "VIDEO") {
+        player.setLoop(true);
 
-  }
-
-
-  document.body.addEventListener(
-    "click",
-    enableAudio
-  );
-
-  document.body.addEventListener(
-    "touchstart",
-    enableAudio
-  );
-
-
-  /* =========================
-     MANUAL MUTE BUTTON
-     ========================= */
-
-  muteButton.addEventListener(
-    "click",
-    () => {
-
-      database.ref("videoMute")
-        .once("value")
-        .then(snap => {
-
-          const newState =
-            snap.val() === "MUTE"
-              ? "UNMUTE"
-              : "MUTE";
-
-          database.ref("videoMute")
-            .set(newState);
-
+        player.loadVideoById({
+          videoId: yt.videoId
         });
-
-    }
-  );
-
-
-  /* =========================
-     YOUTUBE URL PARSER
-     ========================= */
-
-  function extractYouTubeData(url) {
-
-    let videoId = "";
-    let playlistId = "";
-    let type = "VIDEO";
-
-    if (!url)
-      return { type: "NONE" };
-
-
-    try {
-
-      const u =
-        new URL(url.trim());
-
-
-      /* Playlist ID */
-
-      if (u.searchParams.get("list")) {
-
-        playlistId =
-          u.searchParams.get("list");
-
       }
-
-
-      /* Video ID */
-
-      if (u.searchParams.get("v")) {
-
-        videoId =
-          u.searchParams.get("v");
-
-      }
-
-      else if (
-        u.hostname.includes("youtu.be")
-      ) {
-
-        videoId =
-          u.pathname
-            .replace("/", "")
-            .split("?")[0];
-
-      }
-
-      else if (
-        u.pathname.includes("/shorts/")
-      ) {
-
-        videoId =
-          u.pathname
-            .split("/shorts/")[1]
-            .split("/")[0];
-
-      }
-
-      else if (
-        u.pathname.includes("/live/")
-      ) {
-
-        videoId =
-          u.pathname
-            .split("/live/")[1]
-            .split("/")[0];
-
-      }
-
     }
 
-    catch (e) {
+    /* =========================
+       YOUTUBE API READY
+       ========================= */
 
-      const cleanUrl =
-        url.trim();
-
-      if (
-        cleanUrl.startsWith("PL") ||
-        cleanUrl.startsWith("UU") ||
-        cleanUrl.startsWith("FL")
-      ) {
-
-        playlistId = cleanUrl;
-
-      }
-
-      else {
-
-        videoId = cleanUrl;
-
-      }
-
-    }
-
-
-    if (playlistId) {
-
-      type = "PLAYLIST";
-
-    }
-
-    else if (videoId) {
-
-      type = "VIDEO";
-
-    }
-
-
-    return {
-      type,
-      videoId,
-      playlistId
-    };
-
-  }
-
-
-  /* =========================
-     LOAD CONTENT
-     ========================= */
-
-  function loadContentIntoPlayer(yt) {
-
-    if (!playerReady || !player)
-      return;
-
-
-    currentContentType =
-      yt.type;
-
-
-    if (yt.type === "PLAYLIST") {
-
-      player.setLoop(true);
-
-      player.loadPlaylist({
-
-        listType: "playlist",
-
-        list: yt.playlistId,
-
-        index: 0
-
-      });
-
-    }
-
-    else if (yt.type === "VIDEO") {
-
-      player.setLoop(true);
-
-      player.loadVideoById({
-
-        videoId: yt.videoId
-
-      });
-
-    }
-
-  }
-
-
-  /* =========================
-     YOUTUBE API READY
-     ========================= */
-
-  function onYouTubeIframeAPIReady() {
-
-    player = new YT.Player(
-      "ytVideo",
-      {
-
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player("ytVideo", {
         width: "100%",
         height: "100%",
-
         videoId: "M7lc1UVf-VE",
 
         playerVars: {
-
           autoplay: 1,
           controls: 0,
           mute: 1,
@@ -624,209 +626,97 @@
           modestbranding: 1,
           playsinline: 1,
           loop: 1
-
         },
 
-
         events: {
-
           onReady: function () {
-
             playerReady = true;
 
+            database.ref("youtubeURL").once("value").then(snapshot => {
+              const url = snapshot.val();
 
-            database
-              .ref("youtubeURL")
-              .once("value")
-              .then(snapshot => {
-
-                const url =
-                  snapshot.val();
-
-                if (url) {
-
-                  currentLoadedUrl =
-                    url;
-
-                  const yt =
-                    extractYouTubeData(url);
-
-                  loadContentIntoPlayer(yt);
-
-                }
-
-              });
-
+              if (url) {
+                currentLoadedUrl = url;
+                const yt = extractYouTubeData(url);
+                loadContentIntoPlayer(yt);
+              }
+            });
           },
 
-
-          onStateChange:
-            function (event) {
-
-              if (
-                event.data ===
-                YT.PlayerState.ENDED
-              ) {
-
-                if (
-                  currentContentType ===
-                  "PLAYLIST"
-                ) {
-
-                  player.playVideoAt(0);
-
-                }
-
-                else {
-
-                  player.playVideo();
-
-                }
-
+          onStateChange: function (event) {
+            if (event.data === YT.PlayerState.ENDED) {
+              if (currentContentType === "PLAYLIST") {
+                player.playVideoAt(0);
+              } else {
+                player.playVideo();
               }
-
             }
-
+          }
         }
-
-      }
-    );
-
-
-    /* Firebase YouTube URL listener */
-
-    database
-      .ref("youtubeURL")
-      .on("value", snapshot => {
-
-        const url =
-          snapshot.val();
-
-        if (
-          !url ||
-          url === currentLoadedUrl
-        )
-          return;
-
-
-        currentLoadedUrl =
-          url;
-
-
-        const yt =
-          extractYouTubeData(url);
-
-
-        if (playerReady) {
-
-          loadContentIntoPlayer(yt);
-
-        }
-
       });
 
-  }
+      /* Firebase YouTube URL listener */
+      database.ref("youtubeURL").on("value", snapshot => {
+        const url = snapshot.val();
 
+        if (!url || url === currentLoadedUrl) return;
 
-  /* =========================
-     MUTE / UNMUTE
-     ========================= */
+        currentLoadedUrl = url;
 
-  database
-    .ref("videoMute")
-    .on("value", snapshot => {
+        const yt = extractYouTubeData(url);
 
-      const muteState =
-        snapshot.val();
+        if (playerReady) {
+          loadContentIntoPlayer(yt);
+        }
+      });
+    }
 
+    /* =========================
+       MUTE / UNMUTE
+       ========================= */
 
-      if (
-        playerReady &&
-        player.mute
-      ) {
+    database.ref("videoMute").on("value", snapshot => {
+      const muteState = snapshot.val();
 
-        if (
-          muteState === "MUTE"
-        ) {
-
+      if (playerReady && player.mute) {
+        if (muteState === "MUTE") {
           player.mute();
-
           muteButton.innerHTML =
             '<i class="fa-solid fa-volume-xmark"></i>';
-
         }
-
-        else if (
-          muteState === "UNMUTE" &&
-          userInteracted
-        ) {
-
+        else if (muteState === "UNMUTE" && userInteracted) {
           player.unMute();
-
           player.setVolume(35);
 
           muteButton.innerHTML =
             '<i class="fa-solid fa-volume-high"></i>';
-
         }
-
       }
-
     });
 
+    /* =========================
+       PLAY / PAUSE
+       ========================= */
 
-  /* =========================
-     PLAY / PAUSE
-     ========================= */
+    database.ref("videoPlay").on("value", snapshot => {
+      const playState = snapshot.val();
 
-  database
-    .ref("videoPlay")
-    .on("value", snapshot => {
-
-      const playState =
-        snapshot.val();
-
-
-      if (
-        playerReady &&
-        player.playVideo
-      ) {
-
-        if (
-          playState === "PLAY"
-        ) {
-
+      if (playerReady && player.playVideo) {
+        if (playState === "PLAY") {
           player.playVideo();
-
         }
-
-        else if (
-          playState === "PAUSE"
-        ) {
-
+        else if (playState === "PAUSE") {
           player.pauseVideo();
-
         }
-
       }
-
     });
 
+    /* =========================
+       VOLUME
+       ========================= */
 
-  /* =========================
-     VOLUME
-     ========================= */
-
-  database
-    .ref("videoVolume")
-    .on("value", snapshot => {
-
-      const vol =
-        parseInt(
-          snapshot.val(),
-          10
-        );
-
+    database.ref("videoVolume").on("value", snapshot => {
+      const vol = parseInt(snapshot.val(), 10);
 
       if (
         playerReady &&
@@ -835,118 +725,62 @@
         vol <= 100 &&
         player.setVolume
       ) {
-
         player.setVolume(vol);
-
       }
-
     });
 
+    /* =========================
+       TOKEN ANNOUNCEMENT
+       ========================= */
 
-  /* =========================
-     TOKEN ANNOUNCEMENT
-     ========================= */
+    let previousVolume = 30;
 
-  let previousVolume = 30;
-
-
-  database
-    .ref('currentToken')
-    .on('value', snapshot => {
-
-      const data =
-        snapshot.val();
-
+    database.ref('currentToken').on('value', snapshot => {
+      const data = snapshot.val();
 
       if (data) {
-
-        const newToken =
-          data.token || '--';
-
-        const updatedAt =
-          data.updatedAt || 0;
-
+        const newToken = data.token || '--';
+        const updatedAt = data.updatedAt || 0;
 
         if (
           lastToken !== newToken ||
           lastUpdate !== updatedAt
         ) {
+          lastToken = newToken;
+          lastUpdate = updatedAt;
 
-          lastToken =
-            newToken;
-
-          lastUpdate =
-            updatedAt;
-
-
-          if (
-            playerReady &&
-            player.getVolume
-          ) {
-
-            const currentVol =
-              player.getVolume();
+          if (playerReady && player.getVolume) {
+            const currentVol = player.getVolume();
 
             previousVolume =
-              currentVol > 0
-                ? currentVol
-                : previousVolume;
+              currentVol > 0 ? currentVol : previousVolume;
 
             player.setVolume(5);
-
           }
 
-
           if (userInteracted) {
-
-            new Audio(
-              "bell.mp3"
-            ).play();
+            new Audio("bell.mp3").play();
 
             new Audio(
               `https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`
             ).play();
-
           }
 
-
           setTimeout(() => {
-
-            if (
-              playerReady &&
-              player.setVolume
-            ) {
-
-              player.setVolume(
-                previousVolume
-              );
-
+            if (playerReady && player.setVolume) {
+              player.setVolume(previousVolume);
             }
-
           }, 5000);
 
-
-          tokenEl.classList.remove(
-            'blink'
-          );
-
+          tokenEl.classList.remove('blink');
           void tokenEl.offsetWidth;
-
-          tokenEl.classList.add(
-            'blink'
-          );
-
+          tokenEl.classList.add('blink');
         }
 
-
-        tokenEl.textContent =
-          newToken;
-
+        tokenEl.textContent = newToken;
       }
-
     });
-
-</script>
+  </script>
 
 </body>
 </html>
