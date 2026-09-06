@@ -31,9 +31,9 @@
     }
 
     @keyframes gradientFlow {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     #particles {
@@ -45,15 +45,18 @@
       pointer-events: none;
     }
 
+    /* Container height minus bottom static footer (48px) */
     .container {
       display: flex;
-      height: calc(100% - 50px);
+      height: calc(100% - 48px);
       width: 100vw;
     }
 
+    /* LEFT SECTION */
     .left {
       position: relative;
       width: 68.6%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -62,10 +65,10 @@
     #ytVideo {
       flex: 1;
       width: 100%;
-      border: none;
-      border-bottom-right-radius: 20px;
+      border: none; 
     }
 
+    /* Bottom-Right Mute Button */
     #muteButton {
       position: fixed;
       bottom: 60px;
@@ -79,53 +82,93 @@
       border: none;
       cursor: pointer;
       z-index: 10;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .info-row {
+    /* Left Bottom Info Bar: Time/Date + Realtime Dynamic Firebase Ticker */
+    .left-bottom-bar {
+      height: 100px;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 36px;
-      gap: 180px;
-      color: #fff;
-      padding: 20px;
+      align-items: stretch;
+      background: rgba(0, 0, 0, 0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
       z-index: 2;
     }
 
-    .info-box {
-      width: 200px;
-      text-align: center;
-    }
-
-    .right {
-      width: 31.4%;
+    /* Time & Date Box */
+    .time-date-box {
+      width: 10%;
+      min-width: 180px;
+      background: transparent;
+      color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding-top: 200px;
+      border-right: 2px solid rgba(0, 0, 0, 0.3);
+      padding: 0 10px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+    }
+
+    .clock-time {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+
+    .clock-date {
+      font-size: 14px;
+      font-weight: 700;
+      opacity: 0.9;
+    }
+
+    /* Dynamic Message Stream from Excel -> Firebase */
+    .firebase-ticker-box {
+      flex: 1;
+      background: transparent;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* RIGHT SECTION: Token Display */
+    .right {
+      width: 31.4%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 120px;
+      position: relative;
+      box-sizing: border-box;
     }
 
     .right img {
       position: absolute;
-      top: 5px;
-      width: 250px;
+      top: 15px;
+      width: 240px;
       z-index: 3;
     }
 
     .token-label {
-      font-size: 70px;
-      margin-bottom: 0.3em;
+      font-size: 60px;
+      margin-bottom: 0.2em;
       font-weight: 500;
-      padding-top: 50px;
     }
 
     .token-number {
-      font-size: 280px;
+      font-size: 260px;
       font-weight: 900;
       color: #ffffff;
-      text-shadow: 0 0 15px #00ffff;
-      margin-bottom: 20px;
+      text-shadow: 0 0 20px #00ffff;
+      margin-bottom: 10px;
+      line-height: 1;
     }
 
     .token-number.blink {
@@ -133,8 +176,7 @@
     }
 
     .token-text { 
-      font-size: 70px;
-      margin-bottom: 0.3em;
+      font-size: 60px;
       font-weight: 500;
     }
 
@@ -143,23 +185,27 @@
       50% { opacity: 0; }
     }
 
+    /* BOTTOM BAR: Static HTML Footer Message */
     .footer {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.2);
+      height: 48px;
+      line-height: 48px;
+      background: rgba(0, 0, 0, 0.8);
       color: #ffffff;
-      font-size: 36px;
+      font-size: 24px;
       overflow: hidden;
       white-space: nowrap;
-      border-top: 2px solid black;
-      z-index: 2;
+      border-top: 2px solid rgba(255, 255, 255, 0.2);
+      z-index: 5;
     }
 
     .scroll-text {
       display: inline-block;
       padding-left: 100%;
-      animation: scroll-left 30s linear infinite;
+      animation: scroll-left 32s linear infinite;
     }
 
     @keyframes scroll-left {
@@ -173,18 +219,29 @@
 <!-- Particle Canvas -->
 <canvas id="particles"></canvas>
 
-<div class="container">
-  <div class="left">
-    <div id="ytVideo"></div> <!-- YouTube IFrame will render here -->
-    <button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
+<!-- Mute/Unmute Button -->
+<button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
 
-    <div class="info-row">
-      <div class="info-box"><div>🌡️</div><div id="temperature">--°C</div></div>
-      <div class="info-box"><div>💨</div><div id="wind">-- km/h</div></div>
-      <div class="info-box"><div id="dateClock">--:--</div><div id="dateAlt">-- --, ----</div></div>
+<div class="container">
+  <!-- LEFT: YouTube Video + Dynamic Bar -->
+  <div class="left">
+    <div id="ytVideo"></div>
+
+    <div class="left-bottom-bar">
+      <!-- Time & Date -->
+      <div class="time-date-box">
+        <div class="clock-time" id="dateClock">--:-- --</div>
+        <div class="clock-date" id="dateAlt">-- --, ----</div>
+      </div>
+
+      <!-- Realtime Ticker (Pushed from Excel to Firebase) -->
+      <div class="firebase-ticker-box">
+        <div class="scroll-text" id="firebaseNotice"></div>
+      </div>
     </div>
   </div>
 
+  <!-- RIGHT: Clinic Logo & Token Display -->
   <div class="right">
     <img src="logo.png" alt="City Clinic Logo">
     <div class="token-label">Now serving</div>
@@ -193,6 +250,7 @@
   </div>
 </div>
 
+<!-- BOTTOM: HTML Static Message -->
 <div class="footer">
   <div class="scroll-text">
     😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
@@ -202,11 +260,11 @@
 <!-- YouTube Player API -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
-<!-- Firebase -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<!-- Floating Particle Script -->
+<!-- Floating Particles -->
 <script>
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
@@ -252,9 +310,21 @@
   updateParticles();
 </script>
 
-<!-- Firebase & YouTube Script -->
+<!-- Clock Script -->
 <script>
-  // Firebase Initialization
+  function updateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const dateAlt = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById("dateClock").textContent = time;
+    document.getElementById("dateAlt").textContent = dateAlt;
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+</script>
+
+<!-- Firebase & Realtime Sync Logic -->
+<script>
   firebase.initializeApp({
     apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
     authDomain: "cityclinictoken.firebaseapp.com",
@@ -269,16 +339,28 @@
   let player, playerReady = false;
   const muteButton = document.getElementById('muteButton');
   const tokenEl = document.getElementById('tokenNumber');
+  const firebaseNoticeEl = document.getElementById('firebaseNotice');
   let lastToken = null, lastUpdate = null;
   let userInteracted = false;
   let currentLoadedUrl = "";
   let currentContentType = "VIDEO";
 
-  // Unlock audio after first user gesture
+  // Instant Realtime sync from Firebase (scrollingNotice key written by Excel)
+  database.ref("scrollingNotice").on("value", (snapshot) => {
+    const message = snapshot.val();
+    if (message !== null && message !== undefined) {
+      firebaseNoticeEl.textContent = message;
+      // Restart animation smoothly when text updates
+      firebaseNoticeEl.style.animation = 'none';
+      void firebaseNoticeEl.offsetWidth;
+      firebaseNoticeEl.style.animation = 'scroll-left 32s linear infinite';
+    }
+  });
+
+  // Unlock browser audio
   function enableAudio() {
     if (!userInteracted) {
       userInteracted = true;
-      console.log("User interaction detected — audio allowed.");
       database.ref("videoMute").once("value").then(snap => {
         if (snap.val() === "UNMUTE" && playerReady) {
           player.unMute();
@@ -289,7 +371,6 @@
   document.body.addEventListener("click", enableAudio);
   document.body.addEventListener("touchstart", enableAudio);
 
-  // Manual mute toggle button
   muteButton.addEventListener("click", () => {
     database.ref("videoMute").once("value").then(snap => {
       const newState = (snap.val() === "MUTE") ? "UNMUTE" : "MUTE";
@@ -297,75 +378,43 @@
     });
   });
 
-  // YouTube Parser
   function extractYouTubeData(url) {
-    let videoId = "";
-    let playlistId = "";
-    let type = "VIDEO";
-
+    let videoId = "", playlistId = "", type = "VIDEO";
     if (!url) return { type: "NONE" };
-
     try {
       const u = new URL(url.trim());
-
-      if (u.searchParams.get("list")) {
-        playlistId = u.searchParams.get("list");
-      }
-
-      if (u.searchParams.get("v")) {
-        videoId = u.searchParams.get("v");
-      } else if (u.hostname.includes("youtu.be")) {
-        videoId = u.pathname.replace("/", "");
-      } else if (u.pathname.includes("/shorts/")) {
-        videoId = u.pathname.split("/shorts/")[1].split("/")[0];
-      } else if (u.pathname.includes("/live/")) {
-        videoId = u.pathname.split("/live/")[1].split("/")[0];
-      }
+      if (u.searchParams.get("list")) playlistId = u.searchParams.get("list");
+      if (u.searchParams.get("v")) videoId = u.searchParams.get("v");
+      else if (u.hostname.includes("youtu.be")) videoId = u.pathname.replace("/", "");
+      else if (u.pathname.includes("/shorts/")) videoId = u.pathname.split("/shorts/")[1].split("/")[0];
+      else if (u.pathname.includes("/live/")) videoId = u.pathname.split("/live/")[1].split("/")[0];
     } catch (e) {
       const cleanUrl = url.trim();
-      if (cleanUrl.startsWith("PL") || cleanUrl.startsWith("UU") || cleanUrl.startsWith("FL")) {
-        playlistId = cleanUrl;
-      } else {
-        videoId = cleanUrl;
-      }
+      if (cleanUrl.startsWith("PL") || cleanUrl.startsWith("UU") || cleanUrl.startsWith("FL")) playlistId = cleanUrl;
+      else videoId = cleanUrl;
     }
-
-    if (playlistId) {
-      type = "PLAYLIST";
-    } else if (videoId) {
-      type = "VIDEO";
-    }
-
+    if (playlistId) type = "PLAYLIST";
+    else if (videoId) type = "VIDEO";
     return { type, videoId, playlistId };
   }
 
-  // Load Content into active player instance
   function loadContentIntoPlayer(yt) {
     if (!playerReady || !player) return;
-
     currentContentType = yt.type;
-
     if (yt.type === "PLAYLIST") {
-      player.setLoop(true); // Enable playlist loop
-      player.loadPlaylist({
-        listType: "playlist",
-        list: yt.playlistId,
-        index: 0
-      });
+      player.setLoop(true);
+      player.loadPlaylist({ listType: "playlist", list: yt.playlistId, index: 0 });
     } else if (yt.type === "VIDEO") {
       player.setLoop(true);
-      player.loadVideoById({
-        videoId: yt.videoId
-      });
+      player.loadVideoById({ videoId: yt.videoId });
     }
   }
 
-  // YouTube API Ready Handler
   function onYouTubeIframeAPIReady() {
     player = new YT.Player("ytVideo", {
       width: "100%",
       height: "100%",
-      videoId: "M7lc1UVf-VE", // Reliable placeholder video
+      videoId: "M7lc1UVf-VE",
       playerVars: {
         autoplay: 1,
         controls: 0,
@@ -378,8 +427,6 @@
       events: {
         onReady: function () {
           playerReady = true;
-
-          // Sync initial URL from Firebase once ready
           database.ref("youtubeURL").once("value").then((snapshot) => {
             const url = snapshot.val();
             if (url) {
@@ -390,32 +437,23 @@
           });
         },
         onStateChange: function (event) {
-          // Trigger when video or playlist ends (YT.PlayerState.ENDED = 0)
           if (event.data === YT.PlayerState.ENDED) {
-            if (currentContentType === "PLAYLIST") {
-              player.playVideoAt(0); // Restart playlist from first video
-            } else {
-              player.playVideo(); // Restart single video/live replay
-            }
+            if (currentContentType === "PLAYLIST") player.playVideoAt(0);
+            else player.playVideo();
           }
         }
       }
     });
 
-    // Real-time Firebase listener for URL changes
     database.ref("youtubeURL").on("value", (snapshot) => {
       const url = snapshot.val();
       if (!url || url === currentLoadedUrl) return;
-
       currentLoadedUrl = url;
       const yt = extractYouTubeData(url);
-      if (playerReady) {
-        loadContentIntoPlayer(yt);
-      }
+      if (playerReady) loadContentIntoPlayer(yt);
     });
   }
 
-  // Firebase Mute/Unmute State Listener
   database.ref("videoMute").on("value", (snapshot) => {
     const muteState = snapshot.val();
     if (playerReady && player.mute) {
@@ -430,19 +468,14 @@
     }
   });
 
-  // Firebase Play/Pause State Listener
   database.ref("videoPlay").on("value", (snapshot) => {
     const playState = snapshot.val();
     if (playerReady && player.playVideo) {
-      if (playState === "PLAY") {
-        player.playVideo();
-      } else if (playState === "PAUSE") {
-        player.pauseVideo();
-      }
+      if (playState === "PLAY") player.playVideo();
+      else if (playState === "PAUSE") player.pauseVideo();
     }
   });
 
-  // Firebase Volume Level Listener (0–100)
   database.ref("videoVolume").on("value", (snapshot) => {
     const vol = parseInt(snapshot.val(), 10);
     if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100 && player.setVolume) {
@@ -450,7 +483,7 @@
     }
   });
 
-  // Firebase Token Announcement Listener
+  // Token Announcement Listener
   let previousVolume = 30;
 
   database.ref('currentToken').on('value', (snapshot) => {
@@ -488,34 +521,6 @@
       tokenEl.textContent = newToken;
     }
   });
-
-  // Clock
-  function updateTime() {
-    const now = new Date();
-    const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-    const dateAlt = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    document.getElementById("dateClock").textContent = time;
-    document.getElementById("dateAlt").textContent = dateAlt;
-  }
-  setInterval(updateTime, 1000);
-  updateTime();
-
-  // Weather Widget
-  const apiKey = 'ece698c5756c98857c463ddc98000798';
-  const city = 'Kanavalli';
-  async function fetchWeather() {
-    try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
-      const data = await res.json();
-      document.getElementById("temperature").textContent = `${data.main.temp.toFixed(1)}°C`;
-      document.getElementById("wind").textContent = `${data.wind.speed.toFixed(1)} km/h`;
-    } catch {
-      document.getElementById("temperature").textContent = `--°C`;
-      document.getElementById("wind").textContent = `-- km/h`;
-    }
-  }
-  fetchWeather();
-  setInterval(fetchWeather, 600000);
 </script>
 
 </body>
