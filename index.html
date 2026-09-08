@@ -91,39 +91,41 @@
       border-bottom-right-radius: 16px;
     }
 
-    /* RIGHT SECTION: Token Display */
+    /* RIGHT SECTION: Perfectly balanced vertical spacing */
     .right {
       width: 31.4%;
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-evenly;
       align-items: center;
-      padding-top: 70px;
-      position: relative;
+      padding: 15px 10px;
       box-sizing: border-box;
     }
 
     .right img {
-      position: absolute;
-      top: 10px;
-      width: 230px;
-      z-index: 3;
+      width: 290px;
+      max-width: 90%;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
     }
 
     .token-label {
-      font-size: 56px;
-      margin-bottom: 0.15em;
-      font-weight: 500;
+      font-size: 58px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin: 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .token-number {
-      font-size: 240px;
+      font-size: 260px;
       font-weight: 900;
       color: #ffffff;
-      text-shadow: 0 0 20px #00ffff;
-      margin-bottom: 8px;
-      line-height: 1;
+      text-shadow: 0 0 25px #00ffff;
+      line-height: 0.95;
+      margin: 0;
     }
 
     .token-number.blink {
@@ -131,8 +133,11 @@
     }
 
     .token-text { 
-      font-size: 56px;
-      font-weight: 500;
+      font-size: 58px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin: 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     @keyframes blink {
@@ -515,7 +520,7 @@
       player.setVolume(5);
     }
 
-    // 2. Play the chime bell, then play relative token MP3 from tokensounds/ folder
+    // 2. Play chime bell, then token MP3
     const bell = new Audio("bell.mp3");
     const voice = new Audio(`tokensounds/${token}.mp3`);
 
@@ -524,7 +529,6 @@
         voice.play().catch(e => console.warn("Voice play error:", e));
       };
     }).catch(() => {
-      // Fallback if bell fails or is blocked
       voice.play().catch(e => console.warn("Voice play error:", e));
     });
 
@@ -543,7 +547,6 @@
       const newToken = data.token || '--';
       const updatedAt = data.updatedAt || 0;
 
-      // Only trigger on an actual token number change or update
       if (lastToken !== null && (lastToken !== newToken || lastUpdate !== updatedAt)) {
         playAnnouncement(newToken);
 
