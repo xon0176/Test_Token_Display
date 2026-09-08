@@ -45,61 +45,120 @@
       pointer-events: none;
     }
 
-    /* Container height minus bottom static footer (52px) */
+    /* Container height minus both full-width bottom bars (92px + 48px = 140px) */
     .container {
       display: flex;
-      height: calc(100% - 52px);
+      height: calc(100% - 140px);
       width: 100vw;
     }
 
-    /* LEFT SECTION */
+    /* Browser audio autoplay prompt */
+    #audioNotice {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(231, 76, 60, 0.95);
+      color: #ffffff;
+      padding: 12px 28px;
+      font-size: 22px;
+      font-weight: 700;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      cursor: pointer;
+      display: none;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.04); }
+    }
+
+    /* LEFT SECTION: YouTube Video fills full height */
     .left {
       position: relative;
       width: 68.6%;
       height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
     }
 
     #ytVideo {
-      flex: 1;
       width: 100%;
+      height: 100%;
       border: none; 
+      border-bottom-right-radius: 16px;
     }
 
-    /* Bottom-Right Mute Button */
-    #muteButton {
+    /* RIGHT SECTION: Token Display */
+    .right {
+      width: 31.4%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 70px;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .right img {
+      position: absolute;
+      top: 10px;
+      width: 230px;
+      z-index: 3;
+    }
+
+    .token-label {
+      font-size: 56px;
+      margin-bottom: 0.15em;
+      font-weight: 500;
+    }
+
+    .token-number {
+      font-size: 240px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 20px #00ffff;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .token-number.blink {
+      animation: blink 0.6s ease-in-out 3;
+    }
+
+    .token-text { 
+      font-size: 56px;
+      font-weight: 500;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* 1ST BOTTOM BAR (FULL WIDTH 100vw): Time/Date + Dynamic Firebase Ticker */
+    .full-ticker-bar {
       position: fixed;
-      bottom: 65px;
-      right: 30px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: red;
-      color: white;
-      font-size: 24px;
-      border: none;
-      cursor: pointer;
-      z-index: 10;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    /* Left Bottom Info Bar: Time/Date + Dynamic Ticker */
-    .left-bottom-bar {
-      height: 105px;
+      bottom: 48px;
+      left: 0;
+      width: 100vw;
+      height: 92px;
       display: flex;
       align-items: stretch;
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.5);
       border-top: 2px solid rgba(255, 255, 255, 0.2);
-      z-index: 2;
+      z-index: 5;
     }
 
-    /* Time & Date Box: Solid Dark Background & Bigger Fonts */
+    /* Time & Date Box */
     .time-date-box {
-      width: 14%;
+      width: 12%;
       min-width: 220px;
-      background: rgba(10, 15, 25, 0.85);
+      background: rgba(10, 15, 25, 0.88);
       color: #ffffff;
       display: flex;
       flex-direction: column;
@@ -111,7 +170,7 @@
     }
 
     .clock-time {
-      font-size: 38px;
+      font-size: 34px;
       font-weight: 800;
       letter-spacing: 1px;
       line-height: 1.1;
@@ -120,18 +179,18 @@
     }
 
     .clock-date {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #e0e0e0;
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
-    /* Dynamic Message Stream: Much Bigger Font */
+    /* Firebase Ticker across the entire remaining width */
     .firebase-ticker-box {
       flex: 1;
       background: rgba(0, 0, 0, 0.35);
       color: #ffff66;
-      font-size: 38px;
+      font-size: 36px;
       font-weight: 700;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
       display: flex;
@@ -140,73 +199,24 @@
       white-space: nowrap;
     }
 
-    /* RIGHT SECTION: Token Display */
-    .right {
-      width: 31.4%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding-top: 120px;
-      position: relative;
-      box-sizing: border-box;
-    }
-
-    .right img {
-      position: absolute;
-      top: 15px;
-      width: 240px;
-      z-index: 3;
-    }
-
-    .token-label {
-      font-size: 60px;
-      margin-bottom: 0.2em;
-      font-weight: 500;
-    }
-
-    .token-number {
-      font-size: 260px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 20px #00ffff;
-      margin-bottom: 10px;
-      line-height: 1;
-    }
-
-    .token-number.blink {
-      animation: blink 0.6s ease-in-out 3;
-    }
-
-    .token-text { 
-      font-size: 60px;
-      font-weight: 500;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    /* BOTTOM BAR: Static HTML Footer Message */
+    /* 2ND BOTTOM BAR (FULL WIDTH 100vw): Static HTML Footer */
     .footer {
       position: fixed;
       bottom: 0;
       left: 0;
-      width: 100%;
-      height: 52px;
-      line-height: 52px;
-      background: rgba(0, 0, 0, 0.85);
+      width: 100vw;
+      height: 48px;
+      line-height: 48px;
+      background: rgba(0, 0, 0, 0.88);
       color: #ffffff;
-      font-size: 26px;
+      font-size: 24px;
       overflow: hidden;
       white-space: nowrap;
-      border-top: 2px solid rgba(255, 255, 255, 0.25);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       z-index: 5;
     }
 
-    /* Standardized Same Scrolling Speed (30s) */
+    /* Unified 30s Scrolling Speed */
     .scroll-text {
       display: inline-block;
       padding-left: 100%;
@@ -221,29 +231,16 @@
 </head>
 <body>
 
+<!-- Audio autoplay prompt -->
+<div id="audioNotice">🔊 Click anywhere on screen to enable sound</div>
+
 <!-- Particle Canvas -->
 <canvas id="particles"></canvas>
 
-<!-- Mute/Unmute Button -->
-<button id="muteButton"><i class="fa-solid fa-volume-xmark"></i></button>
-
 <div class="container">
-  <!-- LEFT: YouTube Video + Dynamic Bar -->
+  <!-- LEFT: Full Height Video -->
   <div class="left">
     <div id="ytVideo"></div>
-
-    <div class="left-bottom-bar">
-      <!-- Dark Time & Date Box -->
-      <div class="time-date-box">
-        <div class="clock-time" id="dateClock">--:-- --</div>
-        <div class="clock-date" id="dateAlt">-- --, ----</div>
-      </div>
-
-      <!-- Realtime Ticker (Bigger Font, Excel -> Firebase) -->
-      <div class="firebase-ticker-box">
-        <div class="scroll-text" id="firebaseNotice"></div>
-      </div>
-    </div>
   </div>
 
   <!-- RIGHT: Clinic Logo & Token Display -->
@@ -255,7 +252,18 @@
   </div>
 </div>
 
-<!-- BOTTOM: HTML Static Message (Matched 30s scroll speed) -->
+<!-- LINE 1 (FULL WIDTH): Time/Date + Excel/Firebase Scroller -->
+<div class="full-ticker-bar">
+  <div class="time-date-box">
+    <div class="clock-time" id="dateClock">--:-- --</div>
+    <div class="clock-date" id="dateAlt">-- --, ----</div>
+  </div>
+  <div class="firebase-ticker-box">
+    <div class="scroll-text" id="firebaseNotice"></div>
+  </div>
+</div>
+
+<!-- LINE 2 (FULL WIDTH): Original HTML Static Message -->
 <div class="footer">
   <div class="scroll-text">
     😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
@@ -342,15 +350,15 @@
   const database = firebase.database();
 
   let player, playerReady = false;
-  const muteButton = document.getElementById('muteButton');
   const tokenEl = document.getElementById('tokenNumber');
   const firebaseNoticeEl = document.getElementById('firebaseNotice');
+  const audioNoticeEl = document.getElementById('audioNotice');
   let lastToken = null, lastUpdate = null;
   let userInteracted = false;
   let currentLoadedUrl = "";
   let currentContentType = "VIDEO";
 
-  // Realtime Sync from Firebase
+  // Realtime Sync for scrollingNotice from Firebase
   database.ref("scrollingNotice").on("value", (snapshot) => {
     const message = snapshot.val();
     if (message !== null && message !== undefined) {
@@ -361,26 +369,21 @@
     }
   });
 
-  // Unlock audio
+  // Global user interaction to unlock browser audio policies
   function enableAudio() {
-    if (!userInteracted) {
-      userInteracted = true;
+    userInteracted = true;
+    audioNoticeEl.style.display = "none";
+    if (playerReady && player.unMute) {
       database.ref("videoMute").once("value").then(snap => {
-        if (snap.val() === "UNMUTE" && playerReady) {
+        if (snap.val() !== "MUTE") {
           player.unMute();
+          player.setVolume(35);
         }
       });
     }
   }
   document.body.addEventListener("click", enableAudio);
   document.body.addEventListener("touchstart", enableAudio);
-
-  muteButton.addEventListener("click", () => {
-    database.ref("videoMute").once("value").then(snap => {
-      const newState = (snap.val() === "MUTE") ? "UNMUTE" : "MUTE";
-      database.ref("videoMute").set(newState);
-    });
-  });
 
   function extractYouTubeData(url) {
     let videoId = "", playlistId = "", type = "VIDEO";
@@ -422,7 +425,7 @@
       playerVars: {
         autoplay: 1,
         controls: 0,
-        mute: 1,
+        mute: 0, // Unmute by default
         rel: 0,
         modestbranding: 1,
         playsinline: 1,
@@ -431,6 +434,23 @@
       events: {
         onReady: function () {
           playerReady = true;
+
+          database.ref("videoMute").once("value").then((snap) => {
+            const muteState = snap.val();
+            if (muteState === "MUTE") {
+              player.mute();
+            } else {
+              player.unMute();
+              player.setVolume(35);
+
+              setTimeout(() => {
+                if (player.isMuted && player.isMuted()) {
+                  audioNoticeEl.style.display = "block";
+                }
+              }, 1200);
+            }
+          });
+
           database.ref("youtubeURL").once("value").then((snapshot) => {
             const url = snapshot.val();
             if (url) {
@@ -458,16 +478,16 @@
     });
   }
 
+  // Firebase Realtime Video Listeners
   database.ref("videoMute").on("value", (snapshot) => {
     const muteState = snapshot.val();
     if (playerReady && player.mute) {
       if (muteState === "MUTE") {
         player.mute();
-        muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-      } else if (muteState === "UNMUTE" && userInteracted) {
+      } else {
         player.unMute();
         player.setVolume(35);
-        muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        audioNoticeEl.style.display = "none";
       }
     }
   });
