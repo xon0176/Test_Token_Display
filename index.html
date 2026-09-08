@@ -45,10 +45,10 @@
       pointer-events: none;
     }
 
-    /* Container height minus bottom static footer (48px) */
+    /* Container height minus bottom static footer (52px) */
     .container {
       display: flex;
-      height: calc(100% - 48px);
+      height: calc(100% - 52px);
       width: 100vw;
     }
 
@@ -71,7 +71,7 @@
     /* Bottom-Right Mute Button */
     #muteButton {
       position: fixed;
-      bottom: 60px;
+      bottom: 65px;
       right: 30px;
       width: 60px;
       height: 60px;
@@ -82,54 +82,58 @@
       border: none;
       cursor: pointer;
       z-index: 10;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
-    /* Left Bottom Info Bar: Time/Date + Realtime Dynamic Firebase Ticker */
+    /* Left Bottom Info Bar: Time/Date + Dynamic Ticker */
     .left-bottom-bar {
-      height: 100px;
+      height: 105px;
       display: flex;
       align-items: stretch;
-      background: rgba(0, 0, 0, 0.1);
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.45);
+      border-top: 2px solid rgba(255, 255, 255, 0.2);
       z-index: 2;
     }
 
-    /* Time & Date Box */
+    /* Time & Date Box: Solid Dark Background & Bigger Fonts */
     .time-date-box {
-      width: 10%;
-      min-width: 180px;
-      background: transparent;
+      width: 14%;
+      min-width: 220px;
+      background: rgba(10, 15, 25, 0.85);
       color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      border-right: 2px solid rgba(0, 0, 0, 0.3);
-      padding: 0 10px;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+      border-right: 2px solid rgba(255, 255, 255, 0.25);
+      padding: 0 12px;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
     }
 
     .clock-time {
-      font-size: 26px;
+      font-size: 38px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
       line-height: 1.1;
+      color: #00f2fe;
+      text-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
     }
 
     .clock-date {
-      font-size: 14px;
+      font-size: 18px;
       font-weight: 700;
-      opacity: 0.9;
+      color: #e0e0e0;
+      margin-top: 4px;
     }
 
-    /* Dynamic Message Stream from Excel -> Firebase */
+    /* Dynamic Message Stream: Much Bigger Font */
     .firebase-ticker-box {
       flex: 1;
-      background: transparent;
-      color: #ffffff;
-      font-size: 24px;
-      font-weight: 600;
+      background: rgba(0, 0, 0, 0.35);
+      color: #ffff66;
+      font-size: 38px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       overflow: hidden;
@@ -191,21 +195,22 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 48px;
-      line-height: 48px;
-      background: rgba(0, 0, 0, 0.8);
+      height: 52px;
+      line-height: 52px;
+      background: rgba(0, 0, 0, 0.85);
       color: #ffffff;
-      font-size: 24px;
+      font-size: 26px;
       overflow: hidden;
       white-space: nowrap;
-      border-top: 2px solid rgba(255, 255, 255, 0.2);
+      border-top: 2px solid rgba(255, 255, 255, 0.25);
       z-index: 5;
     }
 
+    /* Standardized Same Scrolling Speed (30s) */
     .scroll-text {
       display: inline-block;
       padding-left: 100%;
-      animation: scroll-left 32s linear infinite;
+      animation: scroll-left 30s linear infinite;
     }
 
     @keyframes scroll-left {
@@ -228,13 +233,13 @@
     <div id="ytVideo"></div>
 
     <div class="left-bottom-bar">
-      <!-- Time & Date -->
+      <!-- Dark Time & Date Box -->
       <div class="time-date-box">
         <div class="clock-time" id="dateClock">--:-- --</div>
         <div class="clock-date" id="dateAlt">-- --, ----</div>
       </div>
 
-      <!-- Realtime Ticker (Pushed from Excel to Firebase) -->
+      <!-- Realtime Ticker (Bigger Font, Excel -> Firebase) -->
       <div class="firebase-ticker-box">
         <div class="scroll-text" id="firebaseNotice"></div>
       </div>
@@ -250,7 +255,7 @@
   </div>
 </div>
 
-<!-- BOTTOM: HTML Static Message -->
+<!-- BOTTOM: HTML Static Message (Matched 30s scroll speed) -->
 <div class="footer">
   <div class="scroll-text">
     😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
@@ -345,19 +350,18 @@
   let currentLoadedUrl = "";
   let currentContentType = "VIDEO";
 
-  // Instant Realtime sync from Firebase (scrollingNotice key written by Excel)
+  // Realtime Sync from Firebase
   database.ref("scrollingNotice").on("value", (snapshot) => {
     const message = snapshot.val();
     if (message !== null && message !== undefined) {
       firebaseNoticeEl.textContent = message;
-      // Restart animation smoothly when text updates
       firebaseNoticeEl.style.animation = 'none';
       void firebaseNoticeEl.offsetWidth;
-      firebaseNoticeEl.style.animation = 'scroll-left 32s linear infinite';
+      firebaseNoticeEl.style.animation = 'scroll-left 30s linear infinite';
     }
   });
 
-  // Unlock browser audio
+  // Unlock audio
   function enableAudio() {
     if (!userInteracted) {
       userInteracted = true;
