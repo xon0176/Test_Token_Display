@@ -508,28 +508,27 @@
 
   // Announcement Player Helper Function
   function playAnnouncement(token) {
-    // 1. Duck YouTube volume down to 5 immediately
+    // 1. Duck YouTube volume down to 5
     if (playerReady && player.getVolume && player.setVolume) {
       const vol = player.getVolume();
       if (vol > 10) previousVolume = vol;
       player.setVolume(5);
     }
 
-    // 2. Play the chime bell
+    // 2. Play the chime bell, then play relative token MP3 from tokensounds/ folder
     const bell = new Audio("bell.mp3");
-    const voice = new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${token}.mp3`);
+    const voice = new Audio(`tokensounds/${token}.mp3`);
 
     bell.play().then(() => {
-      // When the bell finishes, play token number voice
       bell.onended = () => {
         voice.play().catch(e => console.warn("Voice play error:", e));
       };
     }).catch(() => {
-      // Fallback if bell is blocked or missing: play voice directly
+      // Fallback if bell fails or is blocked
       voice.play().catch(e => console.warn("Voice play error:", e));
     });
 
-    // 3. Restore YouTube volume back up after announcement completes (6 seconds)
+    // 3. Restore YouTube volume after announcement finishes (6 seconds)
     setTimeout(() => {
       if (playerReady && player.setVolume) {
         player.setVolume(previousVolume);
