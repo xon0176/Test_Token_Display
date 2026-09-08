@@ -45,7 +45,7 @@
       pointer-events: none;
     }
 
-    /* Container height minus both full-width bottom bars (92px + 48px = 140px) */
+    /* Container height minus bottom two ticker bars (92px + 48px = 140px) */
     .container {
       display: flex;
       height: calc(100% - 140px);
@@ -76,7 +76,7 @@
       50% { transform: translateX(-50%) scale(1.04); }
     }
 
-    /* LEFT SECTION: YouTube Video fills full height */
+    /* LEFT SECTION: Full Height Video */
     .left {
       position: relative;
       width: 68.6%;
@@ -140,7 +140,7 @@
       50% { opacity: 0; }
     }
 
-    /* 1ST BOTTOM BAR (FULL WIDTH 100vw): Time/Date + Dynamic Firebase Ticker */
+    /* 1ST BOTTOM BAR (FULL WIDTH): Time/Date + Dynamic Firebase Ticker */
     .full-ticker-bar {
       position: fixed;
       bottom: 48px;
@@ -154,7 +154,6 @@
       z-index: 5;
     }
 
-    /* Time & Date Box */
     .time-date-box {
       width: 12%;
       min-width: 220px;
@@ -185,7 +184,6 @@
       margin-top: 3px;
     }
 
-    /* Firebase Ticker across the entire remaining width */
     .firebase-ticker-box {
       flex: 1;
       background: rgba(0, 0, 0, 0.35);
@@ -199,7 +197,7 @@
       white-space: nowrap;
     }
 
-    /* 2ND BOTTOM BAR (FULL WIDTH 100vw): Static HTML Footer */
+    /* 2ND BOTTOM BAR: Static HTML Footer */
     .footer {
       position: fixed;
       bottom: 0;
@@ -216,7 +214,6 @@
       z-index: 5;
     }
 
-    /* Unified 30s Scrolling Speed */
     .scroll-text {
       display: inline-block;
       padding-left: 100%;
@@ -231,7 +228,7 @@
 </head>
 <body>
 
-<!-- Audio autoplay prompt -->
+<!-- Audio autoplay prompt if browser initially blocks sound -->
 <div id="audioNotice">🔊 Click anywhere on screen to enable sound</div>
 
 <!-- Particle Canvas -->
@@ -354,9 +351,9 @@
   const firebaseNoticeEl = document.getElementById('firebaseNotice');
   const audioNoticeEl = document.getElementById('audioNotice');
   let lastToken = null, lastUpdate = null;
-  let userInteracted = false;
   let currentLoadedUrl = "";
   let currentContentType = "VIDEO";
+  let previousVolume = 35;
 
   // Realtime Sync for scrollingNotice from Firebase
   database.ref("scrollingNotice").on("value", (snapshot) => {
@@ -371,13 +368,12 @@
 
   // Global user interaction to unlock browser audio policies
   function enableAudio() {
-    userInteracted = true;
     audioNoticeEl.style.display = "none";
     if (playerReady && player.unMute) {
       database.ref("videoMute").once("value").then(snap => {
         if (snap.val() !== "MUTE") {
           player.unMute();
-          player.setVolume(35);
+          player.setVolume(previousVolume);
         }
       });
     }
@@ -425,7 +421,7 @@
       playerVars: {
         autoplay: 1,
         controls: 0,
-        mute: 0, // Unmute by default
+        mute: 0, // Start unmuted
         rel: 0,
         modestbranding: 1,
         playsinline: 1,
@@ -441,7 +437,7 @@
               player.mute();
             } else {
               player.unMute();
-              player.setVolume(35);
+              player.setVolume(previousVolume);
 
               setTimeout(() => {
                 if (player.isMuted && player.isMuted()) {
@@ -486,7 +482,7 @@
         player.mute();
       } else {
         player.unMute();
-        player.setVolume(35);
+        player.setVolume(previousVolume);
         audioNoticeEl.style.display = "none";
       }
     }
@@ -502,46 +498,63 @@
 
   database.ref("videoVolume").on("value", (snapshot) => {
     const vol = parseInt(snapshot.val(), 10);
-    if (playerReady && !isNaN(vol) && vol >= 0 && vol <= 100 && player.setVolume) {
-      player.setVolume(vol);
+    if (!isNaN(vol) && vol >= 0 && vol <= 100) {
+      previousVolume = vol;
+      if (playerReady && player.setVolume) {
+        player.setVolume(vol);
+      }
     }
   });
 
-  // Token Announcement Listener
-  let previousVolume = 30;
+  // Announcement Player Helper Function
+  function playAnnouncement(token) {
+    // 1. Duck YouTube volume down to 5 immediately
+    if (playerReady && player.getVolume && player.setVolume) {
+      const vol = player.getVolume();
+      if (vol > 10) previousVolume = vol;
+      player.setVolume(5);
+    }
 
+    // 2. Play the chime bell
+    const bell = new Audio("bell.mp3");
+    const voice = new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${token}.mp3`);
+
+    bell.play().then(() => {
+      // When the bell finishes, play token number voice
+      bell.onended = () => {
+        voice.play().catch(e => console.warn("Voice play error:", e));
+      };
+    }).catch(() => {
+      // Fallback if bell is blocked or missing: play voice directly
+      voice.play().catch(e => console.warn("Voice play error:", e));
+    });
+
+    // 3. Restore YouTube volume back up after announcement completes (6 seconds)
+    setTimeout(() => {
+      if (playerReady && player.setVolume) {
+        player.setVolume(previousVolume);
+      }
+    }, 6000);
+  }
+
+  // Token Announcement Listener
   database.ref('currentToken').on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
       const newToken = data.token || '--';
       const updatedAt = data.updatedAt || 0;
 
-      if (lastToken !== newToken || lastUpdate !== updatedAt) {
-        lastToken = newToken;
-        lastUpdate = updatedAt;
-
-        if (playerReady && player.getVolume) {
-          const currentVol = player.getVolume();
-          previousVolume = currentVol > 0 ? currentVol : previousVolume;
-          player.setVolume(5);
-        }
-
-        if (userInteracted) {
-          new Audio("bell.mp3").play();
-          new Audio(`https://xon0176.github.io/CityClinicToken/tokensounds/${newToken}.mp3`).play();
-        }
-
-        setTimeout(() => {
-          if (playerReady && player.setVolume) {
-            player.setVolume(previousVolume);
-          }
-        }, 5000);
+      // Only trigger on an actual token number change or update
+      if (lastToken !== null && (lastToken !== newToken || lastUpdate !== updatedAt)) {
+        playAnnouncement(newToken);
 
         tokenEl.classList.remove('blink');
         void tokenEl.offsetWidth;
         tokenEl.classList.add('blink');
       }
 
+      lastToken = newToken;
+      lastUpdate = updatedAt;
       tokenEl.textContent = newToken;
     }
   });
