@@ -406,6 +406,23 @@
     return { type, videoId, playlistId };
   }
 
+  // Suppress and turn off YouTube captions completely
+  function disableCaptions() {
+    if (!playerReady || !player) return;
+    try {
+      if (player.unloadModule) {
+        player.unloadModule("captions");
+        player.unloadModule("cc");
+      }
+      if (player.setOption) {
+        player.setOption("captions", "track", {});
+        player.setOption("cc", "track", {});
+      }
+    } catch (e) {
+      console.warn("Caption unload suppressed:", e);
+    }
+  }
+
   function loadContentIntoPlayer(yt) {
     if (!playerReady || !player) return;
     currentContentType = yt.type;
@@ -416,6 +433,7 @@
       player.setLoop(true);
       player.loadVideoById({ videoId: yt.videoId });
     }
+    disableCaptions();
   }
 
   function onYouTubeIframeAPIReady() {
@@ -430,11 +448,14 @@
         rel: 0,
         modestbranding: 1,
         playsinline: 1,
-        loop: 1
+        loop: 1,
+        cc_load_policy: 0, // Subtitles disabled by default
+        iv_load_policy: 3  // Video annotations disabled
       },
       events: {
         onReady: function () {
           playerReady = true;
+          disableCaptions();
 
           database.ref("videoMute").once("value").then((snap) => {
             const muteState = snap.val();
@@ -462,6 +483,7 @@
           });
         },
         onStateChange: function (event) {
+          disableCaptions();
           if (event.data === YT.PlayerState.ENDED) {
             if (currentContentType === "PLAYLIST") player.playVideoAt(0);
             else player.playVideo();
