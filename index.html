@@ -533,7 +533,7 @@
     }
   });
 
-  // Announcement Player Helper Function
+  // Announcement Player Helper Function (Extracts number and plays corresponding C{number}.mp3)
   function playAnnouncement(token) {
     // 1. Duck YouTube volume down to 5
     if (playerReady && player.getVolume && player.setVolume) {
@@ -542,9 +542,13 @@
       player.setVolume(5);
     }
 
-    // 2. Play chime bell, then token MP3
+    // 2. Extract digits only from the token (e.g., "A21" -> "21", "D5" -> "5", "15" -> "15")
+    const numericPart = token.replace(/\D/g, ''); 
+    const soundFile = numericPart ? `tokensounds/C${numericPart}.mp3` : `tokensounds/${token}.mp3`;
+
+    // 3. Play chime bell, then token MP3
     const bell = new Audio("bell.mp3");
-    const voice = new Audio(`tokensounds/${token}.mp3`);
+    const voice = new Audio(soundFile);
 
     bell.play().then(() => {
       bell.onended = () => {
@@ -554,7 +558,7 @@
       voice.play().catch(e => console.warn("Voice play error:", e));
     });
 
-    // 3. Restore YouTube volume after announcement finishes (6 seconds)
+    // 4. Restore YouTube volume after announcement finishes (6 seconds)
     setTimeout(() => {
       if (playerReady && player.setVolume) {
         player.setVolume(previousVolume);
