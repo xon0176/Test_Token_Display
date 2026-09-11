@@ -11,6 +11,7 @@
       height: 100%;
       margin: 0;
       overflow: hidden;
+      background: #000;
     }
 
     body {
@@ -45,38 +46,13 @@
       pointer-events: none;
     }
 
-    /* Container height minus bottom two ticker bars (92px + 48px = 140px) */
     .container {
       display: flex;
       height: calc(100% - 140px);
       width: 100vw;
     }
 
-    /* Browser audio autoplay prompt */
-    #audioNotice {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(231, 76, 60, 0.95);
-      color: #ffffff;
-      padding: 12px 28px;
-      font-size: 22px;
-      font-weight: 700;
-      border-radius: 30px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-      z-index: 100;
-      cursor: pointer;
-      display: none;
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.04); }
-    }
-
-    /* LEFT SECTION: Full Height Video */
+    /* LEFT: Video Area */
     .left {
       position: relative;
       width: 68.6%;
@@ -92,7 +68,7 @@
       border-bottom-right-radius: 16px;
     }
 
-    /* RIGHT SECTION: Token Display */
+    /* RIGHT: Token Display */
     .right {
       width: 31.4%;
       height: 100%;
@@ -146,7 +122,7 @@
       50% { opacity: 0; }
     }
 
-    /* 1ST BOTTOM BAR: Time/Date + Dynamic Notice */
+    /* 1ST BOTTOM BAR: Time & Dynamic Firebase Scroller */
     .full-ticker-bar {
       position: fixed;
       bottom: 48px;
@@ -203,7 +179,6 @@
       white-space: nowrap;
     }
 
-    /* Notice scrolling speed: 52s (comfortable, readable speed) */
     .scroll-notice {
       display: inline-block;
       padding-left: 100%;
@@ -215,7 +190,7 @@
       100% { transform: translateX(-100%); }
     }
 
-    /* 2ND BOTTOM BAR: Static Clinic Information */
+    /* 2ND BOTTOM BAR: Static Footer */
     .footer {
       position: fixed;
       bottom: 0;
@@ -232,7 +207,6 @@
       z-index: 5;
     }
 
-    /* Clinic timings speed: 68s (relaxed, distinct background speed) */
     .scroll-footer {
       display: inline-block;
       padding-left: 100%;
@@ -247,19 +221,13 @@
 </head>
 <body>
 
-<!-- Autoplay prompt for audio policy unlock -->
-<div id="audioNotice">🔊 Click anywhere on screen to enable sound</div>
-
-<!-- Floating Background Particles -->
 <canvas id="particles"></canvas>
 
 <div class="container">
-  <!-- LEFT: Full Height Video -->
   <div class="left">
     <div id="ytVideo"></div>
   </div>
 
-  <!-- RIGHT: Clinic Logo & Token Display -->
   <div class="right">
     <img src="logo.png" alt="City Clinic Logo">
     <div class="token-label">Now serving</div>
@@ -268,7 +236,6 @@
   </div>
 </div>
 
-<!-- LINE 1: Time/Date + Excel/Firebase Scroller (52s Speed) -->
 <div class="full-ticker-bar">
   <div class="time-date-box">
     <div class="clock-time" id="dateClock">--:-- --</div>
@@ -279,7 +246,6 @@
   </div>
 </div>
 
-<!-- LINE 2: Clinic Timings Ticker (68s Speed) -->
 <div class="footer">
   <div class="scroll-footer">
     😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
@@ -349,7 +315,7 @@
   updateTime();
 </script>
 
-<!-- Main App & Sync Script -->
+<!-- Main Logic -->
 <script>
   firebase.initializeApp({
     apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
@@ -366,13 +332,11 @@
   let playerReady = false;
   const tokenEl = document.getElementById('tokenNumber');
   const firebaseNoticeEl = document.getElementById('firebaseNotice');
-  const audioNoticeEl = document.getElementById('audioNotice');
   let lastToken = null, lastUpdate = null;
   let currentLoadedUrl = "";
   let currentContentType = "VIDEO";
-  let previousVolume = 35;
 
-  // Realtime Sync for scrollingNotice from Firebase
+  // Dynamic Ticker
   database.ref("scrollingNotice").on("value", (snapshot) => {
     const message = snapshot.val();
     if (message !== null && message !== undefined) {
@@ -383,24 +347,8 @@
     }
   });
 
-  // Screen click handler for browser audio unlock
-  function enableAudio() {
-    audioNoticeEl.style.display = "none";
-    if (playerReady && player && player.unMute) {
-      database.ref("videoMute").once("value").then(snap => {
-        if (snap.val() !== "MUTE") {
-          player.unMute();
-          player.setVolume(previousVolume);
-        }
-      });
-    }
-  }
-  document.body.addEventListener("click", enableAudio);
-  document.body.addEventListener("touchstart", enableAudio);
-
-  // Safe YouTube link and ID extractor
   function extractYouTubeData(url) {
-    let videoId = "", playlistId = "", type = "NONE";
+    let videoId = "", playlistId = "";
     if (!url) return { type: "NONE" };
     
     try {
@@ -458,10 +406,11 @@
       player.setLoop(true);
       player.loadVideoById({ videoId: yt.videoId });
     }
+    player.mute();
+    player.playVideo();
     disableCaptions();
   }
 
-  // Safe YouTube Player Initialization
   function initYouTubePlayer() {
     if (player) return;
     player = new YT.Player("ytVideo", {
@@ -471,7 +420,7 @@
       playerVars: {
         autoplay: 1,
         controls: 0,
-        mute: 1, // Start muted so browsers unconditionally allow autoplay
+        mute: 1, // Mandatory for TV auto-start
         rel: 0,
         modestbranding: 1,
         playsinline: 1,
@@ -482,24 +431,10 @@
       events: {
         onReady: function () {
           playerReady = true;
+          player.mute();
+          player.playVideo();
           disableCaptions();
 
-          // Sync mute status with Firebase
-          database.ref("videoMute").once("value").then((snap) => {
-            const muteState = snap.val();
-            if (muteState !== "MUTE") {
-              player.unMute();
-              player.setVolume(previousVolume);
-
-              setTimeout(() => {
-                if (player.isMuted && player.isMuted()) {
-                  audioNoticeEl.style.display = "block";
-                }
-              }, 1200);
-            }
-          });
-
-          // Load latest YouTube link from Firebase
           database.ref("youtubeURL").once("value").then((snapshot) => {
             const url = snapshot.val();
             if (url) {
@@ -513,9 +448,12 @@
         },
         onStateChange: function (event) {
           disableCaptions();
+          // Ensure seamless looping without pausing on TVs
           if (event.data === YT.PlayerState.ENDED) {
             if (currentContentType === "PLAYLIST") player.playVideoAt(0);
             else player.playVideo();
+          } else if (event.data === YT.PlayerState.PAUSED) {
+            player.playVideo();
           }
         }
       }
@@ -530,53 +468,14 @@
     });
   }
 
-  // Prevents YouTube API race conditions when loaded from cache
   if (window.YT && window.YT.Player) {
     initYouTubePlayer();
   } else {
     window.onYouTubeIframeAPIReady = initYouTubePlayer;
   }
 
-  // Firebase Realtime Video Control Listeners
-  database.ref("videoMute").on("value", (snapshot) => {
-    const muteState = snapshot.val();
-    if (playerReady && player && player.mute) {
-      if (muteState === "MUTE") {
-        player.mute();
-      } else {
-        player.unMute();
-        player.setVolume(previousVolume);
-        audioNoticeEl.style.display = "none";
-      }
-    }
-  });
-
-  database.ref("videoPlay").on("value", (snapshot) => {
-    const playState = snapshot.val();
-    if (playerReady && player && player.playVideo) {
-      if (playState === "PLAY") player.playVideo();
-      else if (playState === "PAUSE") player.pauseVideo();
-    }
-  });
-
-  database.ref("videoVolume").on("value", (snapshot) => {
-    const vol = parseInt(snapshot.val(), 10);
-    if (!isNaN(vol) && vol >= 0 && vol <= 100) {
-      previousVolume = vol;
-      if (playerReady && player && player.setVolume) {
-        player.setVolume(vol);
-      }
-    }
-  });
-
-  // Announcement Player Helper Function (Extracts numeric digits and plays C{number}.mp3)
+  // Token Announcement
   function playAnnouncement(token) {
-    if (playerReady && player && player.getVolume && player.setVolume) {
-      const vol = player.getVolume();
-      if (vol > 10) previousVolume = vol;
-      player.setVolume(5);
-    }
-
     const numericPart = token.replace(/\D/g, ''); 
     const soundFile = numericPart ? `tokensounds/C${numericPart}.mp3` : `tokensounds/${token}.mp3`;
 
@@ -590,15 +489,8 @@
     }).catch(() => {
       voice.play().catch(e => console.warn("Voice play error:", e));
     });
-
-    setTimeout(() => {
-      if (playerReady && player && player.setVolume) {
-        player.setVolume(previousVolume);
-      }
-    }, 6000);
   }
 
-  // Token Announcement Listener
   database.ref('currentToken').on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -620,7 +512,6 @@
   });
 </script>
 
-<!-- Asynchronous YouTube IFrame API -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
 </body>
