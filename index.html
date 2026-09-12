@@ -81,7 +81,6 @@
       position: relative;
       width: 68.6%;
       height: 100%;
-      background: #000;
       display: flex;
     }
 
@@ -92,7 +91,7 @@
       border-bottom-right-radius: 16px;
     }
 
-    /* RIGHT SECTION: Token Display */
+    /* RIGHT SECTION: Perfectly balanced vertical spacing */
     .right {
       width: 31.4%;
       height: 100%;
@@ -146,7 +145,7 @@
       50% { opacity: 0; }
     }
 
-    /* 1ST BOTTOM BAR: Time/Date + Dynamic Notice */
+    /* 1ST BOTTOM BAR (FULL WIDTH): Time/Date + Dynamic Firebase Ticker */
     .full-ticker-bar {
       position: fixed;
       bottom: 48px;
@@ -203,19 +202,7 @@
       white-space: nowrap;
     }
 
-    /* Notice scrolling speed: 52s (comfortable, readable speed) */
-    .scroll-notice {
-      display: inline-block;
-      padding-left: 100%;
-      animation: scrollNotice 52s linear infinite;
-    }
-
-    @keyframes scrollNotice {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-100%); }
-    }
-
-    /* 2ND BOTTOM BAR: Static Clinic Information */
+    /* 2ND BOTTOM BAR: Static HTML Footer */
     .footer {
       position: fixed;
       bottom: 0;
@@ -232,14 +219,13 @@
       z-index: 5;
     }
 
-    /* Clinic timings speed: 68s (relaxed, distinct background speed) */
-    .scroll-footer {
+    .scroll-text {
       display: inline-block;
       padding-left: 100%;
-      animation: scrollFooter 68s linear infinite;
+      animation: scroll-left 30s linear infinite;
     }
 
-    @keyframes scrollFooter {
+    @keyframes scroll-left {
       0% { transform: translateX(0%); }
       100% { transform: translateX(-100%); }
     }
@@ -247,10 +233,10 @@
 </head>
 <body>
 
-<!-- Autoplay prompt for audio policy unlock -->
+<!-- Audio autoplay prompt if browser initially blocks sound -->
 <div id="audioNotice">🔊 Click anywhere on screen to enable sound</div>
 
-<!-- Floating Background Particles -->
+<!-- Particle Canvas -->
 <canvas id="particles"></canvas>
 
 <div class="container">
@@ -268,23 +254,26 @@
   </div>
 </div>
 
-<!-- LINE 1: Time/Date + Excel/Firebase Scroller (52s Speed) -->
+<!-- LINE 1 (FULL WIDTH): Time/Date + Excel/Firebase Scroller -->
 <div class="full-ticker-bar">
   <div class="time-date-box">
     <div class="clock-time" id="dateClock">--:-- --</div>
     <div class="clock-date" id="dateAlt">-- --, ----</div>
   </div>
   <div class="firebase-ticker-box">
-    <div class="scroll-notice" id="firebaseNotice"></div>
+    <div class="scroll-text" id="firebaseNotice"></div>
   </div>
 </div>
 
-<!-- LINE 2: Clinic Timings Ticker (68s Speed) -->
+<!-- LINE 2 (FULL WIDTH): Original HTML Static Message -->
 <div class="footer">
-  <div class="scroll-footer">
+  <div class="scroll-text">
     😄 Welcome to City Clinic – Kanavalli 🏥 • Opened Everyday • Morning 9:30–1:30 • Evening 6:30–10:30 • Stay healthy & safe! 💊
   </div>
 </div>
+
+<!-- YouTube Player API -->
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -349,7 +338,7 @@
   updateTime();
 </script>
 
-<!-- Main App & Sync Script -->
+<!-- Firebase & Realtime Sync Logic -->
 <script>
   firebase.initializeApp({
     apiKey: "AIzaSyC-dN8RtQkDE3eY5q4mQUYiJv9xQCuwnsk",
@@ -362,8 +351,7 @@
   });
   const database = firebase.database();
 
-  let player = null;
-  let playerReady = false;
+  let player, playerReady = false;
   const tokenEl = document.getElementById('tokenNumber');
   const firebaseNoticeEl = document.getElementById('firebaseNotice');
   const audioNoticeEl = document.getElementById('audioNotice');
@@ -379,14 +367,14 @@
       firebaseNoticeEl.textContent = message;
       firebaseNoticeEl.style.animation = 'none';
       void firebaseNoticeEl.offsetWidth;
-      firebaseNoticeEl.style.animation = 'scrollNotice 52s linear infinite';
+      firebaseNoticeEl.style.animation = 'scroll-left 30s linear infinite';
     }
   });
 
-  // Screen click handler for browser audio unlock
+  // Global user interaction to unlock browser audio policies
   function enableAudio() {
     audioNoticeEl.style.display = "none";
-    if (playerReady && player && player.unMute) {
+    if (playerReady && player.unMute) {
       database.ref("videoMute").once("value").then(snap => {
         if (snap.val() !== "MUTE") {
           player.unMute();
@@ -398,54 +386,41 @@
   document.body.addEventListener("click", enableAudio);
   document.body.addEventListener("touchstart", enableAudio);
 
-  // Safe YouTube link and ID extractor
   function extractYouTubeData(url) {
-    let videoId = "", playlistId = "", type = "NONE";
+    let videoId = "", playlistId = "", type = "VIDEO";
     if (!url) return { type: "NONE" };
-    
     try {
-      const cleanUrl = url.trim();
-      if (!cleanUrl.includes("http") && !cleanUrl.includes("youtube.com") && !cleanUrl.includes("youtu.be")) {
-        if (cleanUrl.startsWith("PL")) return { type: "PLAYLIST", playlistId: cleanUrl };
-        return { type: "VIDEO", videoId: cleanUrl };
-      }
-
-      const u = new URL(cleanUrl);
-      const listParam = u.searchParams.get("list");
-      const vParam = u.searchParams.get("v");
-
-      if (vParam) {
-        videoId = vParam;
-      } else if (u.hostname.includes("youtu.be")) {
-        videoId = u.pathname.replace(/^\/+/, "");
-      } else if (u.pathname.includes("/shorts/")) {
-        videoId = u.pathname.split("/shorts/")[1].split("/")[0];
-      } else if (u.pathname.includes("/live/")) {
-        videoId = u.pathname.split("/live/")[1].split("/")[0];
-      }
-
-      if (listParam && listParam.startsWith("PL") && !videoId) {
-        playlistId = listParam;
-      }
+      const u = new URL(url.trim());
+      if (u.searchParams.get("list")) playlistId = u.searchParams.get("list");
+      if (u.searchParams.get("v")) videoId = u.searchParams.get("v");
+      else if (u.hostname.includes("youtu.be")) videoId = u.pathname.replace("/", "");
+      else if (u.pathname.includes("/shorts/")) videoId = u.pathname.split("/shorts/")[1].split("/")[0];
+      else if (u.pathname.includes("/live/")) videoId = u.pathname.split("/live/")[1].split("/")[0];
     } catch (e) {
       const cleanUrl = url.trim();
-      if (cleanUrl.startsWith("PL")) playlistId = cleanUrl;
+      if (cleanUrl.startsWith("PL") || cleanUrl.startsWith("UU") || cleanUrl.startsWith("FL")) playlistId = cleanUrl;
       else videoId = cleanUrl;
     }
-
-    if (videoId) return { type: "VIDEO", videoId };
-    if (playlistId) return { type: "PLAYLIST", playlistId };
-    return { type: "NONE" };
+    if (playlistId) type = "PLAYLIST";
+    else if (videoId) type = "VIDEO";
+    return { type, videoId, playlistId };
   }
 
+  // Suppress and turn off YouTube captions completely
   function disableCaptions() {
     if (!playerReady || !player) return;
     try {
-      if (typeof player.unloadModule === "function") {
+      if (player.unloadModule) {
         player.unloadModule("captions");
         player.unloadModule("cc");
       }
-    } catch (e) {}
+      if (player.setOption) {
+        player.setOption("captions", "track", {});
+        player.setOption("cc", "track", {});
+      }
+    } catch (e) {
+      console.warn("Caption unload suppressed:", e);
+    }
   }
 
   function loadContentIntoPlayer(yt) {
@@ -461,9 +436,7 @@
     disableCaptions();
   }
 
-  // Safe YouTube Player Initialization
-  function initYouTubePlayer() {
-    if (player) return;
+  function onYouTubeIframeAPIReady() {
     player = new YT.Player("ytVideo", {
       width: "100%",
       height: "100%",
@@ -471,23 +444,24 @@
       playerVars: {
         autoplay: 1,
         controls: 0,
-        mute: 1, // Start muted so browsers unconditionally allow autoplay
+        mute: 0, // Start unmuted
         rel: 0,
         modestbranding: 1,
         playsinline: 1,
         loop: 1,
-        cc_load_policy: 0,
-        iv_load_policy: 3
+        cc_load_policy: 0, // Subtitles disabled by default
+        iv_load_policy: 3  // Video annotations disabled
       },
       events: {
         onReady: function () {
           playerReady = true;
           disableCaptions();
 
-          // Sync mute status with Firebase
           database.ref("videoMute").once("value").then((snap) => {
             const muteState = snap.val();
-            if (muteState !== "MUTE") {
+            if (muteState === "MUTE") {
+              player.mute();
+            } else {
               player.unMute();
               player.setVolume(previousVolume);
 
@@ -499,15 +473,12 @@
             }
           });
 
-          // Load latest YouTube link from Firebase
           database.ref("youtubeURL").once("value").then((snapshot) => {
             const url = snapshot.val();
             if (url) {
               currentLoadedUrl = url;
               const yt = extractYouTubeData(url);
-              if (yt.type !== "NONE") {
-                loadContentIntoPlayer(yt);
-              }
+              loadContentIntoPlayer(yt);
             }
           });
         },
@@ -526,21 +497,14 @@
       if (!url || url === currentLoadedUrl) return;
       currentLoadedUrl = url;
       const yt = extractYouTubeData(url);
-      if (playerReady && yt.type !== "NONE") loadContentIntoPlayer(yt);
+      if (playerReady) loadContentIntoPlayer(yt);
     });
   }
 
-  // Prevents YouTube API race conditions when loaded from cache
-  if (window.YT && window.YT.Player) {
-    initYouTubePlayer();
-  } else {
-    window.onYouTubeIframeAPIReady = initYouTubePlayer;
-  }
-
-  // Firebase Realtime Video Control Listeners
+  // Firebase Realtime Video Listeners
   database.ref("videoMute").on("value", (snapshot) => {
     const muteState = snapshot.val();
-    if (playerReady && player && player.mute) {
+    if (playerReady && player.mute) {
       if (muteState === "MUTE") {
         player.mute();
       } else {
@@ -553,7 +517,7 @@
 
   database.ref("videoPlay").on("value", (snapshot) => {
     const playState = snapshot.val();
-    if (playerReady && player && player.playVideo) {
+    if (playerReady && player.playVideo) {
       if (playState === "PLAY") player.playVideo();
       else if (playState === "PAUSE") player.pauseVideo();
     }
@@ -563,23 +527,26 @@
     const vol = parseInt(snapshot.val(), 10);
     if (!isNaN(vol) && vol >= 0 && vol <= 100) {
       previousVolume = vol;
-      if (playerReady && player && player.setVolume) {
+      if (playerReady && player.setVolume) {
         player.setVolume(vol);
       }
     }
   });
 
-  // Announcement Player Helper Function (Extracts numeric digits and plays C{number}.mp3)
+  // Announcement Player Helper Function (Extracts number and plays corresponding C{number}.mp3)
   function playAnnouncement(token) {
-    if (playerReady && player && player.getVolume && player.setVolume) {
+    // 1. Duck YouTube volume down to 5
+    if (playerReady && player.getVolume && player.setVolume) {
       const vol = player.getVolume();
       if (vol > 10) previousVolume = vol;
       player.setVolume(5);
     }
 
+    // 2. Extract digits only from the token (e.g., "A21" -> "21", "D5" -> "5", "15" -> "15")
     const numericPart = token.replace(/\D/g, ''); 
     const soundFile = numericPart ? `tokensounds/C${numericPart}.mp3` : `tokensounds/${token}.mp3`;
 
+    // 3. Play chime bell, then token MP3
     const bell = new Audio("bell.mp3");
     const voice = new Audio(soundFile);
 
@@ -591,8 +558,9 @@
       voice.play().catch(e => console.warn("Voice play error:", e));
     });
 
+    // 4. Restore YouTube volume after announcement finishes (6 seconds)
     setTimeout(() => {
-      if (playerReady && player && player.setVolume) {
+      if (playerReady && player.setVolume) {
         player.setVolume(previousVolume);
       }
     }, 6000);
@@ -619,9 +587,6 @@
     }
   });
 </script>
-
-<!-- Asynchronous YouTube IFrame API -->
-<script src="https://www.youtube.com/iframe_api"></script>
 
 </body>
 </html>
